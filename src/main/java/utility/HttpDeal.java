@@ -11,7 +11,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 public class HttpDeal {
-	public static String getResponse(String url, String username, String password){
+	public static String getResponse(String url){
 		try{
 			HttpClient httpClient = HttpClients.createDefault();
 			HttpGet get = new HttpGet(new URI(url));
