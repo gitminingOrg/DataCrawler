@@ -1,8 +1,15 @@
 package utility;
 
+import githubCrawler.RepoCrawler;
+
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -12,7 +19,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
 public class MessageReceiver {
-	private static final String TASK_QUEUE_NAME = "new_test_queue";
+	private static final String TASK_QUEUE_NAME = "crawlrepo_queue";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -58,6 +65,23 @@ public class MessageReceiver {
 	}
 
 	public static void handleTask(String message) {
-
+		System.out.println(message);
+		RepoCrawler repoCrawler = new RepoCrawler();
+		repoCrawler.crawl(message);
+		
+		Mongo mongo = new Mongo("121.41.118.191", 27017);
+		DB db = mongo.getDB("ghcrawler");
+		DBCollection repolist = db.getCollection("repolist");
+		DBObject object = new BasicDBObject();
+		object.put("full_name", message);
+		DBObject repo = repolist.find(object).next();
+		
+		DBObject before = new BasicDBObject();
+		before.put("id", Integer.parseInt(repo.get("id").toString()));
+		DBObject after = new BasicDBObject();
+		after.put("id", Integer.parseInt(repo.get("id").toString()));
+		after.put("full_name", repo.get("full_name").toString());
+		after.put("state", "completed");
+		repolist.update(before, after);
 	}
 }
