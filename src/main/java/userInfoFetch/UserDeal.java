@@ -40,9 +40,15 @@ public class UserDeal {
 		MongoCollection<Document> collectionFollow = db.getCollection("follower");
 		MongoCollection<Document> collectionRepo = db.getCollection("userRepo");
 		
-		collection.insertOne(user);
-		collectionFollow.insertMany(followerList);
-		collectionRepo.insertMany(repoList);
+		if(user != null){
+			collection.insertOne(user);
+		}
+		if (followerList != null && !followerList.isEmpty()) {
+			collectionFollow.insertMany(followerList);
+		}
+		if (repoList != null && !repoList.isEmpty()) {
+			collectionRepo.insertMany(repoList);
+		}
 		
 		mongoClient.close();
 	}
