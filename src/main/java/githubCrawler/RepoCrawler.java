@@ -207,6 +207,7 @@ public class RepoCrawler {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			e.printStackTrace();
 			System.exit(0);
 		}
 
