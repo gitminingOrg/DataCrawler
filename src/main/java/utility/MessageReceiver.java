@@ -67,21 +67,38 @@ public class MessageReceiver {
 	public static void handleTask(String message) {
 		System.out.println(message);
 		RepoCrawler repoCrawler = new RepoCrawler();
-		repoCrawler.crawl(message);
 		
 		Mongo mongo = new Mongo("121.41.118.191", 27017);
 		DB db = mongo.getDB("ghcrawler");
 		DBCollection repolist = db.getCollection("repolist");
-		DBObject object = new BasicDBObject();
-		object.put("full_name", message);
-		DBObject repo = repolist.find(object).next();
-		
-		DBObject before = new BasicDBObject();
-		before.put("id", Integer.parseInt(repo.get("id").toString()));
-		DBObject after = new BasicDBObject();
-		after.put("id", Integer.parseInt(repo.get("id").toString()));
-		after.put("full_name", repo.get("full_name").toString());
-		after.put("state", "completed");
-		repolist.update(before, after);
+		DBCollection repository = db.getCollection("repository");
+		DBObject judge = new BasicDBObject();
+		judge.put("full_name", message);
+		if(repository.find(judge).count() == 0){
+			repoCrawler.crawl(message);
+			DBObject object = new BasicDBObject();
+			object.put("full_name", message);
+			DBObject repo = repolist.find(object).next();
+			
+			DBObject before = new BasicDBObject();
+			before.put("id", Integer.parseInt(repo.get("id").toString()));
+			DBObject after = new BasicDBObject();
+			after.put("id", Integer.parseInt(repo.get("id").toString()));
+			after.put("full_name", repo.get("full_name").toString());
+			after.put("state", "completed");
+			repolist.update(before, after);
+		}else{
+			DBObject object = new BasicDBObject();
+			object.put("full_name", message);
+			DBObject repo = repolist.find(object).next();
+			
+			DBObject before = new BasicDBObject();
+			before.put("id", Integer.parseInt(repo.get("id").toString()));
+			DBObject after = new BasicDBObject();
+			after.put("id", Integer.parseInt(repo.get("id").toString()));
+			after.put("full_name", repo.get("full_name").toString());
+			after.put("state", "completed");
+			repolist.update(before, after);
+		}
 	}
 }

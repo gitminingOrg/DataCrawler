@@ -1,6 +1,7 @@
 package githubCrawler;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -140,60 +141,74 @@ public class RepoCrawler {
 		crawlIssues(fullName);
 		crawlPulls(fullName);
 
-		for (int i = 0; i < repositoryArray.size(); i++) {
-			repository.save(repositoryArray.get(i));
-		}
-		for (int i = 0; i < forksArray.size(); i++) {
-			forks.save(forksArray.get(i));
-		}
-		for (int i = 0; i < assigneesArray.size(); i++) {
-			assignees.save(assigneesArray.get(i));
-		}
-		for (int i = 0; i < languagesArray.size(); i++) {
-			languages.save(languagesArray.get(i));
-		}
-		for (int i = 0; i < stargazersArray.size(); i++) {
-			stargazers.save(stargazersArray.get(i));
-		}
-		for (int i = 0; i < contributorsArray.size(); i++) {
-			contributors.save(contributorsArray.get(i));
-		}
-		for (int i = 0; i < subscribersArray.size(); i++) {
-			subscribers.save(subscribersArray.get(i));
-		}
-		for (int i = 0; i < tagsArray.size(); i++) {
-			tags.save(tagsArray.get(i));
-		}
-		for (int i = 0; i < branchesArray.size(); i++) {
-			branches.save(branchesArray.get(i));
-		}
-		for (int i = 0; i < gitrefsArray.size(); i++) {
-			gitrefs.save(gitrefsArray.get(i));
-		}
-		for (int i = 0; i < commentsArray.size(); i++) {
-			comments.save(commentsArray.get(i));
-		}
-		for (int i = 0; i < issuecommentArray.size(); i++) {
-			issue_comment.save(issuecommentArray.get(i));
-		}
-		for (int i = 0; i < issueeventsArray.size(); i++) {
-			issue_events.save(issueeventsArray.get(i));
-		}
-		for (int i = 0; i < eventsArray.size(); i++) {
-			events.save(eventsArray.get(i));
-		}
-		for (int i = 0; i < contentsArray.size(); i++) {
-			contents.save(contentsArray.get(i));
-		}
-		for (int i = 0; i < issuesArray.size(); i++) {
-			issues.save(issuesArray.get(i));
-		}
-		for (int i = 0; i < pullsArray.size(); i++) {
-			pulls.save(pullsArray.get(i));
-		}
-		DBCursor cursor = commitscache.find();
-		while (cursor.hasNext()) {
-			commits.save(cursor.next());
+		try{
+			for (int i = 0; i < repositoryArray.size(); i++) {
+				repository.save(repositoryArray.get(i));
+			}
+			for (int i = 0; i < forksArray.size(); i++) {
+				forks.save(forksArray.get(i));
+			}
+			for (int i = 0; i < assigneesArray.size(); i++) {
+				assignees.save(assigneesArray.get(i));
+			}
+			for (int i = 0; i < languagesArray.size(); i++) {
+				languages.save(languagesArray.get(i));
+			}
+			for (int i = 0; i < stargazersArray.size(); i++) {
+				stargazers.save(stargazersArray.get(i));
+			}
+			for (int i = 0; i < contributorsArray.size(); i++) {
+				contributors.save(contributorsArray.get(i));
+			}
+			for (int i = 0; i < subscribersArray.size(); i++) {
+				subscribers.save(subscribersArray.get(i));
+			}
+			for (int i = 0; i < tagsArray.size(); i++) {
+				tags.save(tagsArray.get(i));
+			}
+			for (int i = 0; i < branchesArray.size(); i++) {
+				branches.save(branchesArray.get(i));
+			}
+			for (int i = 0; i < gitrefsArray.size(); i++) {
+				gitrefs.save(gitrefsArray.get(i));
+			}
+			for (int i = 0; i < commentsArray.size(); i++) {
+				comments.save(commentsArray.get(i));
+			}
+			for (int i = 0; i < issuecommentArray.size(); i++) {
+				issue_comment.save(issuecommentArray.get(i));
+			}
+			for (int i = 0; i < issueeventsArray.size(); i++) {
+				issue_events.save(issueeventsArray.get(i));
+			}
+			for (int i = 0; i < eventsArray.size(); i++) {
+				events.save(eventsArray.get(i));
+			}
+			for (int i = 0; i < contentsArray.size(); i++) {
+				contents.save(contentsArray.get(i));
+			}
+			for (int i = 0; i < issuesArray.size(); i++) {
+				issues.save(issuesArray.get(i));
+			}
+			for (int i = 0; i < pullsArray.size(); i++) {
+				pulls.save(pullsArray.get(i));
+			}
+			DBCursor cursor = commitscache.find();
+			while (cursor.hasNext()) {
+				commits.save(cursor.next());
+			}
+		}catch(Exception e){
+			FileWriter fileWriter;
+			try {
+				fileWriter = new FileWriter("log.txt",true);
+				fileWriter.write(fullName + "\n");
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.exit(0);
 		}
 
 		repositoryArray.clear();
