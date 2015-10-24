@@ -9,8 +9,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import javax.swing.plaf.basic.BasicOptionPaneUI;
-
 import org.apache.commons.codec.binary.Base64;
 
 import userInfoFetch.UserDeal;
