@@ -192,6 +192,7 @@ public class RepoCrawler {
 				pulls.save(pullsArray.get(i));
 			}
 			DBCursor cursor = commitscache.find();
+			cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (cursor.hasNext()) {
 				commits.save(cursor.next());
 			}
