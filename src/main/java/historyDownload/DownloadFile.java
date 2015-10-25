@@ -68,7 +68,7 @@ public class DownloadFile {
 				TotalSize = 0;
 			}
 			System.out.println("file size:" + TotalSize);
-			// urlc.disconnect();//先断开，下面再连接，否则下面会报已经连接的错误
+			
 			urlc = (HttpURLConnection) url.openConnection();
 			// if file exists and name is .tp, means download uncompleted,
 			// continue
@@ -122,6 +122,7 @@ public class DownloadFile {
 				fileRename(localFile_bak, localFile);
 			}
 		} catch (Exception e) {
+			urlc.disconnect();//先断开，下面再连接，否则下面会报已经连接的错误
 			e.printStackTrace();
 			return false;
 		}

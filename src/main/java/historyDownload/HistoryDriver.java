@@ -10,7 +10,7 @@ import java.util.Properties;
 public class HistoryDriver {
 	public static void main(String[] args) {
 		HistoryDriver historyDriver = new HistoryDriver();
-		String start = "2015-01-06-1";
+		String start = "2015-01-06-10";
 		String end = "2015-02-01-0";
 		historyDriver.filterData(start, end);
 	}
@@ -60,6 +60,7 @@ public class HistoryDriver {
 				bw.flush();
 				bw.close();
 				fw.close();
+				
 			} catch (Exception e2) {
 				// TODO: handle exception
 				e2.printStackTrace();
