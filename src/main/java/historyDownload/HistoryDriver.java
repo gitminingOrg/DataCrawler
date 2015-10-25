@@ -15,7 +15,7 @@ public class HistoryDriver {
 		DownloadFile downloadFile = new DownloadFile();
 		DecompressFile decompressFile = new DecompressFile();
 		String hour = start;
-		while(!hour.equals("end")){
+		while(!hour.equals(end)){
 			String url = "http://data.githubarchive.org/"+hour+".json.gz";
 			String gzoutput = "/Users/owenchen/Documents/javaTmpFile/"+hour+".json.gz";
 			String jsonoutput = "/Users/owenchen/Documents/javaTmpFile/"+hour+".json";
