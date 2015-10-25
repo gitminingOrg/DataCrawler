@@ -1,18 +1,22 @@
 package historyDownload;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.util.Properties;
 
 public class HistoryDriver {
 	public static void main(String[] args) {
 		HistoryDriver historyDriver = new HistoryDriver();
-		String start = "2015-01-04-0";
-		String end = "2015-01-04-6";
+		String start = "2015-01-06-1";
+		String end = "2015-02-01-0";
 		historyDriver.filterData(start, end);
 	}
 
 	public void filterData(String start, String end) {
+		String hour =start;
 		try {
 			Properties properties = new Properties();
 			String path = Thread.currentThread().getContextClassLoader()
@@ -23,7 +27,6 @@ public class HistoryDriver {
 			HistoryFilter.init();
 			DownloadFile downloadFile = new DownloadFile();
 			DecompressFile decompressFile = new DecompressFile();
-			String hour = start;
 			while (!hour.equals(end)) {
 				if (HistoryFilter.validate(hour)) {
 					String url = "http://data.githubarchive.org/" + hour
@@ -50,6 +53,18 @@ public class HistoryDriver {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			try {
+				FileWriter fw = new FileWriter("history log",true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(hour+"\n");
+				bw.flush();
+				bw.close();
+				fw.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+				e2.printStackTrace();
+			}
+
 		}
 
 	}

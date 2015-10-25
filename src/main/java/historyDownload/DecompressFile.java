@@ -1,8 +1,10 @@
 package historyDownload;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
@@ -39,14 +41,30 @@ public class DecompressFile {
             System.out.println("Transfering bytes from compressed file to" +outFileName);   
             byte[] buf = new byte[1024];   
             int len;   
-            while((len = in.read(buf)) > 0) {   
-                out.write(buf, 0, len);   
-            }   
+            try{
+                while((len = in.read(buf)) > 0) {   
+                    out.write(buf, 0, len);   
+                } 	
+            }catch(NullPointerException e){
+            	
+            }
+  
             System.out.println("success decompress");   
             in.close();   
             out.close();   
         } catch (IOException e) {   
-            e.printStackTrace();   
+            e.printStackTrace();  
+			try {
+				FileWriter fw = new FileWriter("history log",true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(inFileName+"\n");
+				bw.flush();
+				bw.close();
+				fw.close();
+			} catch (Exception e2) {
+				// TODO: handle exception
+				e2.printStackTrace();
+			}
             return false;
         }
 		return true;   
