@@ -61,7 +61,12 @@ public class DownloadFile {
 		try {
 			url = new URL(urlString);
 			urlc = (HttpURLConnection) url.openConnection();
-			TotalSize = Long.parseLong(urlc.getHeaderField("Content-Length"));
+			try{
+				long possible = Long.parseLong(urlc.getHeaderField("Content-Length"));
+				TotalSize = possible;
+			}catch(Exception e){
+				TotalSize = 0;
+			}
 			System.out.println("file size:" + TotalSize);
 			// urlc.disconnect();//先断开，下面再连接，否则下面会报已经连接的错误
 			urlc = (HttpURLConnection) url.openConnection();

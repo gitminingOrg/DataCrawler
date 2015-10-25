@@ -32,10 +32,29 @@ public class HistoryFilter {
 		mongoClient.close();
 	}
 	
-	public static void hashFilter(File file){
+	public static boolean validate(String hour){
+		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
+		MongoDatabase db = mongoClient.getDatabase("historyevents");
+		FindIterable<Document> iterable = db.getCollection("hour").find(new Document("hour", hour));
+		if (iterable.first() != null) {
+			System.out.println(hour + " exists!");
+			mongoClient.close();
+			return false;
+		}
+		mongoClient.close();
+		return true;
+	}
+	
+	public static void hashFilter(File file,String hour){
 		try{
 			MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
 			MongoDatabase db = mongoClient.getDatabase("historyevents");
+			
+			Document document = new Document();
+			document.append("hour", hour);
+			document.append("finish", false);
+			db.getCollection("hour").insertOne(document);
+			
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String line = "";
@@ -53,6 +72,7 @@ public class HistoryFilter {
 					db.getCollection("spec_events").insertOne(Document.parse(line));
 				}
 			}
+			db.getCollection("hour").updateOne(new Document("hour",hour),new Document("$set",new Document("finish","true")));
 			br.close();
 			fr.close();
 			mongoClient.close();
@@ -63,9 +83,4 @@ public class HistoryFilter {
 		
 	}
 	
-	public static void main(String[] args){
-		File file = new File("/Users/owenchen/Documents/2014-12-30-0.json");
-		init();
-		hashFilter(file);
-	}
 }
