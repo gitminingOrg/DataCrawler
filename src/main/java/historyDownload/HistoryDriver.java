@@ -10,7 +10,7 @@ import java.util.Properties;
 public class HistoryDriver {
 	public static void main(String[] args) {
 		HistoryDriver historyDriver = new HistoryDriver();
-		String start = "2015-01-06-10";
+		String start = "2015-01-14-6";
 		String end = "2015-02-01-0";
 		historyDriver.filterData(start, end);
 	}
@@ -28,44 +28,60 @@ public class HistoryDriver {
 			DownloadFile downloadFile = new DownloadFile();
 			DecompressFile decompressFile = new DecompressFile();
 			while (!hour.equals(end)) {
-				if (HistoryFilter.validate(hour)) {
-					String url = "http://data.githubarchive.org/" + hour
-							+ ".json.gz";
-					String gzoutput = tmpFilePlace+ hour + ".json.gz";
-					String jsonoutput = tmpFilePlace+ hour + ".json";
-					boolean download = downloadFile.download(url, gzoutput);
-					if (!download) {
-						System.err.println("下载失败" + gzoutput);
-						continue;
-					}
-					boolean decompress = decompressFile.decompress(gzoutput);
-					if (!decompress) {
-						System.err.println("解压失败" + gzoutput);
-						break;
-					}
-					File gzFile = new File(gzoutput);
-					File jsonFile = new File(jsonoutput);
-					HistoryFilter.hashFilter(jsonFile, hour);
-					gzFile.delete();
-					jsonFile.delete();
+				try{
+					if (HistoryFilter.validate(hour)) {
+						String url = "http://data.githubarchive.org/" + hour
+								+ ".json.gz";
+						String gzoutput = tmpFilePlace+ hour + ".json.gz";
+						String jsonoutput = tmpFilePlace+ hour + ".json";
+						boolean download = downloadFile.download(url, gzoutput);
+						if (!download) {
+							System.err.println("下载失败" + gzoutput);							
+							try {
+								FileWriter fw = new FileWriter("history log",true);
+								BufferedWriter bw = new BufferedWriter(fw);
+								bw.write(hour+"\n");
+								bw.flush();
+								bw.close();
+								fw.close();
+							} catch (Exception e2) {
+								// TODO: handle exception
+								e2.printStackTrace();
+							}	
+							hour = getNextHour(hour);
+							Thread.sleep(180000);
+							continue;
+						}
+						boolean decompress = decompressFile.decompress(gzoutput);
+						if (!decompress) {
+							System.err.println("解压失败" + gzoutput);
+							break;
+						}
+						File gzFile = new File(gzoutput);
+						File jsonFile = new File(jsonoutput);
+						HistoryFilter.hashFilter(jsonFile, hour);
+						gzFile.delete();
+						jsonFile.delete();
+					}					
+				}catch(Exception e){
+					try {
+						FileWriter fw = new FileWriter("history log",true);
+						BufferedWriter bw = new BufferedWriter(fw);
+						bw.write(hour+"\n");
+						bw.flush();
+						bw.close();
+						fw.close();
+						e.printStackTrace();
+					} catch (Exception e2) {
+						// TODO: handle exception
+						e2.printStackTrace();
+					}					
 				}
+
 				hour = getNextHour(hour);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			try {
-				FileWriter fw = new FileWriter("history log",true);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(hour+"\n");
-				bw.flush();
-				bw.close();
-				fw.close();
-				
-			} catch (Exception e2) {
-				// TODO: handle exception
-				e2.printStackTrace();
-			}
-
 		}
 
 	}
