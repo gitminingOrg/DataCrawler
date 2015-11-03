@@ -80,7 +80,7 @@ public class MessageReceiver {
 		GitCrawler gitCrawler = new GitCrawler();
 		
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("fuck");
+		DB db = mongo.getDB("ghcrawlV1.0");
 		//DBCollection repolist = db.getCollection("repolist");
 		DBCollection repository = db.getCollection("repository");
 		DBObject judge = new BasicDBObject();

@@ -13,7 +13,7 @@ import com.mongodb.client.MongoDatabase;
 public class UserDeal {
 	public static void fetchUser(String login, int id) {
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("testUser2");
+		MongoDatabase db = mongoClient.getDatabase("ghcrawlV1.0");
 		FindIterable<Document> exist = db.getCollection("user").find(new Document("id",id));
 		if (exist.first() != null) {
 			System.out.println(id + " exists!");

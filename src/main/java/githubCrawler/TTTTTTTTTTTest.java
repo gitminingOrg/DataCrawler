@@ -27,7 +27,7 @@ public class TTTTTTTTTTTest {
 		/*IssueCrawler issueCrawler = new IssueCrawler();
 		System.out.println(issueCrawler.crawlIssues("Komodo/KomodoEdit").size());*/
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("fuck");
+		DB db = mongo.getDB("ghcrawlV1.0");
 		DBCollection commitscache = db.getCollection("commitscache");
 		
 		commitscache.drop();

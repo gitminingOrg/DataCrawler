@@ -23,7 +23,7 @@ import com.mongodb.util.JSON;
 
 public class CommitCrawler {
 	private Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-	private DB db = mongo.getDB("fuck");
+	private DB db = mongo.getDB("ghcrawlV1.0");
 	private DBCollection commitscache = db.getCollection("commitscache");
 
 	public void crawlCommits(String fullName){

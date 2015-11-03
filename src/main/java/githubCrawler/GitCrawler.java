@@ -34,7 +34,7 @@ import com.mongodb.util.JSON;
 public class GitCrawler {
 	private static Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 	//private static Mongo mongo = new Mongo("localhost", 27017);
-	private static DB db = mongo.getDB("fuck");
+	private static DB db = mongo.getDB("ghcrawlV1.0");
 	private static DBCollection repository = db.getCollection("repository");
 	private static DBCollection forks = db.getCollection("forks");
 	private static DBCollection assignees = db.getCollection("assignees");
