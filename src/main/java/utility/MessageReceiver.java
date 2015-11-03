@@ -1,5 +1,7 @@
 package utility;
 
+import githubCrawler.GitCrawler;
+import githubCrawler.GitrefCrawler;
 import githubCrawler.RepoCrawler;
 
 import java.io.IOException;
@@ -55,28 +57,68 @@ public class MessageReceiver {
 				}
 			};
 			channel.basicConsume(TASK_QUEUE_NAME, false, consumer);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			while(ValidateInternetConnection.validateInternetConnection() == 0){
+				System.out.println("Wait for connecting the internet---------------");
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("The internet is connected------------");
+			
+			//need server connection judgement
+			MessageReceiver.main(null);
 		}
 	}
 
 	public static void handleTask(String message) {
 		System.out.println(message);
-		RepoCrawler repoCrawler = new RepoCrawler();
+		GitCrawler gitCrawler = new GitCrawler();
 		
-		Mongo mongo = new Mongo("121.41.118.191", 27017);
-		DB db = mongo.getDB("ghcrawler");
-		DBCollection repolist = db.getCollection("repolist");
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("fuck");
+		//DBCollection repolist = db.getCollection("repolist");
 		DBCollection repository = db.getCollection("repository");
 		DBObject judge = new BasicDBObject();
 		judge.put("full_name", message);
-		if(repository.find(judge).count() == 0){
-			repoCrawler.crawl(message);
-			DBObject object = new BasicDBObject();
+		
+		int number = 0;
+		try {
+			number = repository.find(judge).count();
+		} catch (Exception e) {
+			// TODO: handle exception
+			while(ValidateInternetConnection.validateInternetConnection() == 0){
+				System.out.println("Wait for connecting the internet---------------");
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("The internet is connected------------");
+			
+			while(ValidateMongoConnection.validateMongoConnection() <= 0){
+				System.out.println("Wait for connecting the mongo---------------");
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("The mongo is connected------------");
+			
+			number = repository.find(judge).count();
+		}
+		
+		if(number == 0){
+			gitCrawler.crawl(message);
+			/*DBObject object = new BasicDBObject();
 			object.put("full_name", message);
 			DBObject repo = repolist.find(object).next();
 			
@@ -86,9 +128,9 @@ public class MessageReceiver {
 			after.put("id", Integer.parseInt(repo.get("id").toString()));
 			after.put("full_name", repo.get("full_name").toString());
 			after.put("state", "completed");
-			repolist.update(before, after);
+			repolist.update(before, after);*/
 		}else{
-			DBObject object = new BasicDBObject();
+			/*DBObject object = new BasicDBObject();
 			object.put("full_name", message);
 			DBObject repo = repolist.find(object).next();
 			
@@ -98,7 +140,7 @@ public class MessageReceiver {
 			after.put("id", Integer.parseInt(repo.get("id").toString()));
 			after.put("full_name", repo.get("full_name").toString());
 			after.put("state", "completed");
-			repolist.update(before, after);
+			repolist.update(before, after);*/
 		}
 	}
 }

@@ -10,10 +10,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.impl.conn.tsccm.WaitingThread;
 
 import userInfoFetch.UserDeal;
 import utility.AccountUtil;
 import utility.MessageSender;
+import utility.ValidateInternetConnection;
+import utility.ValidateMongoConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,6 +38,7 @@ public class RepoCrawler {
 	private static String indexURL = "https://api.github.com/repositories?since=";
 	private static String authorization = "";
 	private static Mongo mongo = new Mongo("121.41.118.191", 27017);
+	//private static Mongo mongo = new Mongo("localhost", 27017);
 	private static DB db = mongo.getDB("ghcrawler");
 	private static DBCollection repository = db.getCollection("repository");
 	private static DBCollection forks = db.getCollection("forks");
@@ -207,8 +211,28 @@ public class RepoCrawler {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
-			System.exit(0);
+			
+			while(ValidateInternetConnection.validateInternetConnection() == 0){
+				System.out.println("Wait for connecting the internet---------------");
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("The internet is connected------------");
+			
+			while(ValidateMongoConnection.validateMongoConnection() <= 0){
+				System.out.println("Wait for connecting the mongo---------------");
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			System.out.println("The mongo is connected------------");
 		}
 
 		repositoryArray.clear();
@@ -425,25 +449,29 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						String concreteURL = jsonArray.get(i).getAsJsonObject()
-								.get("url").toString();
-						url = new URL(concreteURL.substring(1,
-								concreteURL.length() - 1));
-						urlConnection = (HttpURLConnection) url
-								.openConnection();
-						rateCounter = rateCounter + 1;
-						setAuthorization(rateCounter);
-						urlConnection.setRequestProperty("Authorization",
-								authorization);
-						reader = new BufferedReader(new InputStreamReader(
-								urlConnection.getInputStream()));
-						DBObject object = (BasicDBObject) JSON.parse(reader
-								.readLine());
-						object.put("fn", fullName);
-						pullsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							String concreteURL = jsonArray.get(i).getAsJsonObject()
+									.get("url").toString();
+							url = new URL(concreteURL.substring(1,
+									concreteURL.length() - 1));
+							urlConnection = (HttpURLConnection) url
+									.openConnection();
+							rateCounter = rateCounter + 1;
+							setAuthorization(rateCounter);
+							urlConnection.setRequestProperty("Authorization",
+									authorization);
+							reader = new BufferedReader(new InputStreamReader(
+									urlConnection.getInputStream()));
+							DBObject object = (BasicDBObject) JSON.parse(reader
+									.readLine());
+							object.put("fn", fullName);
+							pullsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(pullsURL + index);
@@ -481,25 +509,29 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						String concreteURL = jsonArray.get(i).getAsJsonObject()
-								.get("url").toString();
-						url = new URL(concreteURL.substring(1,
-								concreteURL.length() - 1));
-						urlConnection = (HttpURLConnection) url
-								.openConnection();
-						rateCounter = rateCounter + 1;
-						setAuthorization(rateCounter);
-						urlConnection.setRequestProperty("Authorization",
-								authorization);
-						reader = new BufferedReader(new InputStreamReader(
-								urlConnection.getInputStream()));
-						DBObject object = (BasicDBObject) JSON.parse(reader
-								.readLine());
-						object.put("fn", fullName);
-						issuesArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							String concreteURL = jsonArray.get(i).getAsJsonObject()
+									.get("url").toString();
+							url = new URL(concreteURL.substring(1,
+									concreteURL.length() - 1));
+							urlConnection = (HttpURLConnection) url
+									.openConnection();
+							rateCounter = rateCounter + 1;
+							setAuthorization(rateCounter);
+							urlConnection.setRequestProperty("Authorization",
+									authorization);
+							reader = new BufferedReader(new InputStreamReader(
+									urlConnection.getInputStream()));
+							DBObject object = (BasicDBObject) JSON.parse(reader
+									.readLine());
+							object.put("fn", fullName);
+							issuesArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(issuesURL + index);
@@ -537,13 +569,43 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						commitscache.save(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						System.out.println(jsonArray.size());
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							try{
+								commitscache.save(object);
+							}catch(Exception e){
+								while(ValidateInternetConnection.validateInternetConnection() == 0){
+									System.out.println("Wait for connecting the internet---------------");
+									try {
+										Thread.sleep(30000);
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+								System.out.println("The internet is connected------------");
+								
+								while(ValidateMongoConnection.validateMongoConnection() <= 0){
+									System.out.println("Wait for connecting the mongo---------------");
+									try {
+										Thread.sleep(30000);
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+								System.out.println("The mongo is connected------------");
+								commitscache.save(object);
+							}
+						}
+					}catch(Exception e){
+						System.out.println("------------------------------------------------------------------" + commitsURL);
 					}
 					index = index + 1;
 					System.out.println(commitsURL + index);
@@ -596,6 +658,7 @@ public class RepoCrawler {
 		}
 	}
 
+	/*-----------------------*/
 	public void crawlEvents(String fullName) {
 		System.out.println("Start crawl events------------------------");
 		String eventsURL = rootURL + fullName + "/events?page=";
@@ -616,13 +679,17 @@ public class RepoCrawler {
 				if (resultString == null || resultString.equals("[]")) {
 					break;
 				} else {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						eventsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							eventsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(eventsURL + index);
@@ -657,13 +724,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						issueeventsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							issueeventsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(issueeventsURL + index);
@@ -701,13 +772,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						issuecommentArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							issuecommentArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(issuecommentURL + index);
@@ -745,13 +820,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						commentsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							commentsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(commentsURL + index);
@@ -789,13 +868,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						gitrefsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							gitrefsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(gitrefsURL + index);
@@ -833,13 +916,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						branchesArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							branchesArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(branchesURL + index);
@@ -877,13 +964,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						tagsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							tagsArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(tagsURL + index);
@@ -921,13 +1012,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						subscribersArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							subscribersArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(subscribersURL + index);
@@ -965,15 +1060,19 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						contributorsArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							contributorsArray.add(object);
+							
+							UserDeal.fetchUser(object.get("login").toString(), Integer.parseInt(object.get("id").toString()));
+						}
+					}catch(Exception e){
 						
-						UserDeal.fetchUser(object.get("login").toString(), Integer.parseInt(object.get("id").toString()));
 					}
 					index = index + 1;
 					System.out.println(contributorsURL + index);
@@ -1011,13 +1110,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						stargazersArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							stargazersArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(stargazersURL + index);
@@ -1081,15 +1184,19 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						assigneesArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							assigneesArray.add(object);
+							
+							UserDeal.fetchUser(object.get("login").toString(), Integer.parseInt(object.get("id").toString()));
+						}
+					}catch(Exception e){
 						
-						UserDeal.fetchUser(object.get("login").toString(), Integer.parseInt(object.get("id").toString()));
 					}
 					index = index + 1;
 					System.out.println(assigneesURL + index);
@@ -1127,13 +1234,17 @@ public class RepoCrawler {
 						urlConnection.getInputStream()));
 				resultString = reader.readLine();
 				while (resultString != null && !resultString.equals("[]")) {
-					JsonArray jsonArray = new JsonParser().parse(resultString)
-							.getAsJsonArray();
-					for (int i = 0; i < jsonArray.size(); i++) {
-						DBObject object = (BasicDBObject) JSON.parse(jsonArray
-								.get(i).toString());
-						object.put("fn", fullName);
-						forksArray.add(object);
+					try{
+						JsonArray jsonArray = new JsonParser().parse(resultString)
+								.getAsJsonArray();
+						for (int i = 0; i < jsonArray.size(); i++) {
+							DBObject object = (BasicDBObject) JSON.parse(jsonArray
+									.get(i).toString());
+							object.put("fn", fullName);
+							forksArray.add(object);
+						}
+					}catch(Exception e){
+						
 					}
 					index = index + 1;
 					System.out.println(forksURL + index);
@@ -1176,6 +1287,7 @@ public class RepoCrawler {
 		}
 	}
 
+	/*need exception opertion later*/
 	public String getRepoFullName(int id){
 		String urlString = indexURL + (id - 1);
 		try {

@@ -27,6 +27,7 @@ public class FetchUserRepos {
 				page++;			
 				//get response str
 				String followJson = HttpDeal.getResponse(searchUrl);
+				System.out.println(searchUrl);
 				//parse to json array
 				JsonParser parser = new JsonParser();
 				JsonArray reposArray = parser.parse(followJson).getAsJsonArray();
