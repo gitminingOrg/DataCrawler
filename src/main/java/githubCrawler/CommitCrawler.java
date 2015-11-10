@@ -23,8 +23,9 @@ import com.mongodb.util.JSON;
 
 public class CommitCrawler {
 	private Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-	private DB db = mongo.getDB("ghcrawlV1.0");
+	private DB db = mongo.getDB("ghcrawlerV3");
 	private DBCollection commitscache = db.getCollection("commitscache");
+	public static int commitNumber = 0;
 
 	public void crawlCommits(String fullName){
 		System.out.println("Start crawl commits------------------------");
@@ -124,6 +125,7 @@ public class CommitCrawler {
 							DBObject object = (BasicDBObject) JSON.parse(response);
 							object.put("fn", fullName);
 							commitsArray.add(object);
+							commitNumber ++;
 						} catch (Exception e) {
 							// TODO: handle exception
 							System.out.println("can not translate it to json----------------------------");

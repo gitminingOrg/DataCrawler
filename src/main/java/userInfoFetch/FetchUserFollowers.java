@@ -31,6 +31,7 @@ public class FetchUserFollowers {
 			
 			while (effect) {
 				String searchUrl = url+"?page="+page;
+				System.out.println(searchUrl);
 				page++;
 				//get response str
 				String followJson = HttpDeal.getResponse(searchUrl);

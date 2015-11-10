@@ -10,8 +10,8 @@ public class GetURLConnection {
 		try {
 			URL url = new URL(urlString);
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.setConnectTimeout(5000);
-			urlConnection.setReadTimeout(5000);
+			//urlConnection.setConnectTimeout(10000);
+			//urlConnection.setReadTimeout(10000);
 			String authorization = GetAuthorization.getAuthorization();
 			urlConnection.setRequestProperty("Authorization", authorization);
 			

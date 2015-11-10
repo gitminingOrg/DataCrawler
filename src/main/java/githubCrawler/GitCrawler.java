@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.impl.conn.tsccm.WaitingThread;
@@ -34,7 +35,7 @@ import com.mongodb.util.JSON;
 public class GitCrawler {
 	private static Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 	//private static Mongo mongo = new Mongo("localhost", 27017);
-	private static DB db = mongo.getDB("ghcrawlV1.0");
+	private static DB db = mongo.getDB("ghcrawlerV3");
 	private static DBCollection repository = db.getCollection("repository");
 	private static DBCollection forks = db.getCollection("forks");
 	private static DBCollection assignees = db.getCollection("assignees");
@@ -57,6 +58,14 @@ public class GitCrawler {
 	private static DBCollection commitscache = db.getCollection("commitscache");
 	private static DBCollection tree = db.getCollection("tree");
 	private static DBCollection repolist = db.getCollection("repolist");
+	private static DBCollection complete = db.getCollection("complete");
+	private static DBCollection usercache = db.getCollection("usercache");
+	private static DBCollection followercache = db.getCollection("followercache");
+	private static DBCollection userRepocache = db.getCollection("userRepocache");
+	private static DBCollection user = db.getCollection("user");
+	private static DBCollection follower = db.getCollection("follower");
+	private static DBCollection userRepo = db.getCollection("userRepo");
+	private static DBCollection commitnumber = db.getCollection("commitnumber");
 	private static DBObject repositoryArray = null;
 	private static ArrayList<DBObject> forksArray = new ArrayList<DBObject>();
 	private static ArrayList<DBObject> assigneesArray = new ArrayList<DBObject>();
@@ -113,6 +122,12 @@ public class GitCrawler {
 	public void crawl(String fullName) {
 
 		commitscache.drop();
+		usercache.drop();
+		followercache.drop();
+		userRepocache.drop();
+		usercache = db.getCollection("usercache");
+		followercache = db.getCollection("followercache");
+		userRepocache = db.getCollection("userRepocache");
 		commitscache = db.getCollection("commitscache");
 		
 		RepositoryCrawler repositoryCrawler = new RepositoryCrawler();
@@ -213,12 +228,45 @@ public class GitCrawler {
 				tree.save(treeArray);
 			}
 			
+			DBObject commitNum = new BasicDBObject();
+			commitNum.put("commitnumber", commitCrawler.commitNumber);
+			commitNum.put("fn", fullName);
+			commitnumber.save(commitNum);
+			commitCrawler.commitNumber = 0;
+			
 			DBCursor cursor = commitscache.find();
 			cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (cursor.hasNext()) {
 				commits.save(cursor.next());
 			}
 			cursor.close();
+			
+			DBCursor userCursor = usercache.find();
+			userCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while(userCursor.hasNext()){
+				user.save(userCursor.next());
+			}
+			userCursor.close();
+			
+			DBCursor followerCursor = followercache.find();
+			followerCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while(followerCursor.hasNext()){
+				follower.save(followerCursor.next());
+			}
+			followerCursor.close();
+			
+			DBCursor userRepoCursor = userRepocache.find();
+			userRepoCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while(userRepoCursor.hasNext()){
+				userRepo.save(userRepoCursor.next());
+			}
+			userRepoCursor.close();
+			
+			DBObject object = new BasicDBObject();
+			object.put("full_name", fullName);
+			object.put("state", "completed");
+			object.put("date", Calendar.getInstance().getTime());
+			complete.save(object);
 		}catch(Exception e){
 			FileWriter fileWriter;
 			try {

@@ -79,6 +79,7 @@ public class LanguageCrawler {
 			if (response != null && !response.equals("{}")){
 				try{
 					language = (BasicDBObject) JSON.parse(response);
+					language.put("fn", fullName);
 				}catch(Exception e){
 					System.out.println("can not translate it to json----------------------------");
 				}

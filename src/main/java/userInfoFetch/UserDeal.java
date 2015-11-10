@@ -13,8 +13,8 @@ import com.mongodb.client.MongoDatabase;
 public class UserDeal {
 	public static void fetchUser(String login, int id) {
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("ghcrawlV1.0");
-		FindIterable<Document> exist = db.getCollection("user").find(new Document("id",id));
+		MongoDatabase db = mongoClient.getDatabase("ghcrawlerV3");
+		FindIterable<Document> exist = db.getCollection("usercache").find(new Document("id",id));
 		if (exist.first() != null) {
 			System.out.println(id + " exists!");
 			mongoClient.close();
@@ -36,10 +36,11 @@ public class UserDeal {
 		FetchUserRepos fetchUserRepos = new FetchUserRepos();
 		List<Document> repoList =fetchUserRepos.insertUserRepos(repos);	
 		
-		MongoCollection<Document> collection = db.getCollection("user");
-		MongoCollection<Document> collectionFollow = db.getCollection("follower");
-		MongoCollection<Document> collectionRepo = db.getCollection("userRepo");
+		MongoCollection<Document> collection = db.getCollection("usercache");
+		MongoCollection<Document> collectionFollow = db.getCollection("followercache");
+		MongoCollection<Document> collectionRepo = db.getCollection("userRepocache");
 		
+		System.out.println("save-----------------------");
 		if(user != null){
 			collection.insertOne(user);
 		}
