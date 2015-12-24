@@ -1,17 +1,22 @@
 package historyDownload;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Properties;
 
 public class HistoryDriver {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 		HistoryDriver historyDriver = new HistoryDriver();
-		String start = "2015-01-14-6";
-		String end = "2015-02-01-0";
+		Properties properties = new Properties();
+		String path = Thread.currentThread().getContextClassLoader()
+				.getResource("config.properties").getPath();
+		properties.load(new FileInputStream(new File(path)));
+		String start = properties.getProperty("date.start");
+		String end = properties.getProperty("date.end");
 		historyDriver.filterData(start, end);
 	}
 
@@ -23,45 +28,52 @@ public class HistoryDriver {
 					.getResource("config.properties").getPath();
 			properties.load(new FileInputStream(new File(path)));
 			String tmpFilePlace = properties.getProperty("tmp.file.place");
-
+			//tmpFilePlace = "~/Desktop/";
 			HistoryFilter.init();
 			DownloadFile downloadFile = new DownloadFile();
 			DecompressFile decompressFile = new DecompressFile();
 			while (!hour.equals(end)) {
+				System.out.println("aa");
 				try{
 					if (HistoryFilter.validate(hour)) {
 						String url = "http://data.githubarchive.org/" + hour
 								+ ".json.gz";
 						String gzoutput = tmpFilePlace+ hour + ".json.gz";
 						String jsonoutput = tmpFilePlace+ hour + ".json";
-						boolean download = downloadFile.download(url, gzoutput);
-						if (!download) {
-							System.err.println("下载失败" + gzoutput);							
-							try {
-								FileWriter fw = new FileWriter("history log",true);
-								BufferedWriter bw = new BufferedWriter(fw);
-								bw.write(hour+"\n");
-								bw.flush();
-								bw.close();
-								fw.close();
-							} catch (Exception e2) {
-								// TODO: handle exception
-								e2.printStackTrace();
-							}	
-							hour = getNextHour(hour);
-							Thread.sleep(180000);
-							continue;
-						}
-						boolean decompress = decompressFile.decompress(gzoutput);
-						if (!decompress) {
-							System.err.println("解压失败" + gzoutput);
-							break;
-						}
+//						boolean download = downloadFile.download(url, gzoutput);
+//						if (!download) {
+//							System.err.println("下载失败" + gzoutput);							
+//							try {
+//								FileWriter fw = new FileWriter("history log",true);
+//								BufferedWriter bw = new BufferedWriter(fw);
+//								bw.write(hour+"\n");
+//								bw.flush();
+//								bw.close();
+//								fw.close();
+//							} catch (Exception e2) {
+//								// TODO: handle exception
+//								e2.printStackTrace();
+//							}	
+//							hour = getNextHour(hour);
+//							Thread.sleep(120000);
+//							continue;
+//						}
 						File gzFile = new File(gzoutput);
 						File jsonFile = new File(jsonoutput);
-						HistoryFilter.hashFilter(jsonFile, hour);
-						gzFile.delete();
-						jsonFile.delete();
+						if(jsonFile.exists()){
+							HistoryFilter.hashFilter(jsonFile, hour);
+						}else if(gzFile.exists()){
+							boolean decompress = decompressFile.decompress(gzoutput);
+							if (!decompress) {
+								System.err.println("解压失败" + gzoutput);
+								hour = getNextHour(hour);
+								continue;
+							}
+							HistoryFilter.hashFilter(jsonFile, hour);
+							jsonFile.delete();
+						}else{
+							System.err.println(gzoutput+"数据缺失");
+						}
 					}					
 				}catch(Exception e){
 					try {

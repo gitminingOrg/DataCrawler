@@ -28,7 +28,7 @@ import com.mongodb.client.MongoDatabase;
 public class UserInfo {
 	public static void main(String[] args) throws Exception{
 		UserInfo info = new UserInfo();
-		info.calOrgRepoCount();
+		info.getUserBasicInfo();
 	}
 	public void getUserBasicInfo() {
 		try {
@@ -36,17 +36,12 @@ public class UserInfo {
 			connection.setAutoCommit(false);
 			MongoClient mongoClient = new MongoClient(
 					MongoInfo.getMongoServerIp(), 27017);
-			MongoDatabase database = mongoClient.getDatabase("testUser2");
+			MongoDatabase database = mongoClient.getDatabase("ghcrawlerV3");
 			FindIterable<Document> userIterable = database
 					.getCollection("user").find();
 
-			File file = new File("user.txt");
-			FileWriter fw = new FileWriter(file, true);
-			BufferedWriter bw = new BufferedWriter(fw);
-
 			JsonParser parser = new JsonParser();
 			for (Document document : userIterable) {
-				String line = "";
 				String json = document.toJson();
 				JsonObject user = parser.parse(json).getAsJsonObject();
 				String login = user.get("login").getAsString();
@@ -100,8 +95,9 @@ public class UserInfo {
 				
 
 				
-				String sql = "insert into UserTest values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				String sql = "insert into usertest values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE hireable='true';";
 				PreparedStatement stmt = connection.prepareStatement(sql);
+				System.out.println(id);
 				stmt.setInt(1, id);
 				stmt.setString(2, login);
 				stmt.setString(3, type);
@@ -122,21 +118,10 @@ public class UserInfo {
 				
 				stmt.execute();
 
-
-//				line = id + "\t" + login + "\t" + type + "\t" + admin_num
-//						+ "\t" + name + "\t" + company + "\t" + blog + "\t"
-//						+ location + "\t" + email + "\t" + hireable+ "\t" + bio
-//						+ "\t" + repos + "\t" + gists + "\t" + followers + "\t"
-//						+ following + "\t" + createDate + "\t" + updateDate
-//						+ "\n";
-//				bw.write(line);
 			}
-
-			bw.flush();
-			bw.close();
-			fw.close();
 			mongoClient.close();
 			connection.commit();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

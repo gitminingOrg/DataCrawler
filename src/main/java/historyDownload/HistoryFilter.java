@@ -20,8 +20,8 @@ public class HistoryFilter {
 	private static HashSet<Integer> repoIdSet = new HashSet<Integer>();
 	public static void init(){
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("ghcrawler");
-		FindIterable<Document> exist = db.getCollection("repolist").find();
+		MongoDatabase db = mongoClient.getDatabase("ghcrawlerV3");
+		FindIterable<Document> exist = db.getCollection("repo").find();
 		for (Document document : exist) {
 			String json = document.toJson();
 			JsonParser parser = new JsonParser();
@@ -63,7 +63,9 @@ public class HistoryFilter {
 				JsonObject event = parser.parse(line).getAsJsonObject();
 				int repoId = 0;
 				if(event.has("repo")){
-					repoId = event.get("repo").getAsJsonObject().get("id").getAsInt();
+					String eventString = event.toString();
+					String id = eventString.split(":")[3].split(",")[0];
+					repoId = Integer.parseInt(id);
 				}else if(event.has("repository")){
 					repoId = event.get("repository").getAsJsonObject().get("id").getAsInt();
 				}

@@ -198,7 +198,6 @@ public class MessageReceiver {
 						fileWriter.flush();
 						fileWriter.close();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
