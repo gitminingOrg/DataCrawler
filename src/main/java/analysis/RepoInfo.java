@@ -30,18 +30,18 @@ public class RepoInfo {
 		RepoInfo repoInfo = new RepoInfo();
 //		repoInfo.getRepo();
 //		System.out.println("repo!!!!!!!!!");
-//		repoInfo.getContribution();
-//		System.out.println("getContribution!!");
-//		repoInfo.getCollaborators();
-//		System.out.println("getCollaborators!!");
-//		repoInfo.analyseLanguage();
-//		repoInfo.getIssueAndPull();
-//		repoInfo.analyseContributors();
-//		repoInfo.analyseCollaborators();
-//		repoInfo.getCommitCount();
-//		repoInfo.updateScore();
-//		repoInfo.generateTag();
-//		repoInfo.generateRepoTagStub();
+		repoInfo.getContribution();
+		System.out.println("getContribution!!");
+		repoInfo.getCollaborators();
+		System.out.println("getCollaborators!!");
+		repoInfo.analyseLanguage();
+		repoInfo.getIssueAndPull();
+		repoInfo.analyseContributors();
+		repoInfo.analyseCollaborators();
+		repoInfo.getCommitCount();
+		repoInfo.updateScore();
+		repoInfo.generateTag();
+		repoInfo.generateRepoTagStub();
 		repoInfo.calculateRepoSimilarity();
 	}
 	
