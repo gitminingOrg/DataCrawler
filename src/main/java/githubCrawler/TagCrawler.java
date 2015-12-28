@@ -7,18 +7,23 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class TagCrawler {
 
-	public ArrayList<DBObject> crawlTags(String fullName){
+	public void crawlTags(String fullName){
 		System.out.println("Start crawl tags------------------------");
 		int index = 1;
 		String tagsURL = "https://api.github.com/repos/" + fullName + "/tags?page=";
@@ -26,7 +31,9 @@ public class TagCrawler {
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> tagsArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection tagcache = db.getCollection(GetHostName.getHostName() + "tagcache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -85,7 +92,7 @@ public class TagCrawler {
 						DBObject object = (BasicDBObject) JSON.parse(jsonArray
 								.get(i).toString());
 						object.put("fn", fullName);
-						tagsArray.add(object);
+						tagcache.save(object);
 					}
 				}catch(Exception e){
 					System.out.println("can not translate it to json----------------------------");
@@ -121,6 +128,5 @@ public class TagCrawler {
 			}
 		}
 		
-		return tagsArray;
 	}
 }

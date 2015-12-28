@@ -8,18 +8,23 @@ import java.util.ArrayList;
 
 import userInfoFetch.UserDeal;
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class ContributorCrawler {
 	
-	public ArrayList<DBObject> crawlContributors(String fullName){
+	public void crawlContributors(String fullName){
 		System.out.println("Start crawl contributors------------------------");
 		int index = 1;
 		String contributorsURL = "https://api.github.com/repos/" + fullName + "/contributors?page=";
@@ -27,7 +32,9 @@ public class ContributorCrawler {
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> contributorsArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection contributorcache = db.getCollection(GetHostName.getHostName() + "contributorcache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -86,7 +93,7 @@ public class ContributorCrawler {
 						DBObject object = (BasicDBObject) JSON.parse(jsonArray
 								.get(i).toString());
 						object.put("fn", fullName);
-						contributorsArray.add(object);
+						contributorcache.save(object);
 						
 						UserDeal.fetchUser(object.get("login").toString(), Integer.parseInt(object.get("id").toString()));
 					}
@@ -124,6 +131,5 @@ public class ContributorCrawler {
 			}
 		}
 		
-		return contributorsArray;
 	}
 }

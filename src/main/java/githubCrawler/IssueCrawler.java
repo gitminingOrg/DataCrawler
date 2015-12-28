@@ -7,26 +7,33 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class IssueCrawler {
 
-	public ArrayList<DBObject> crawlIssues(String fullName){
+	public void crawlIssues(String fullName){
 		System.out.println("Start crawl issues------------------------");
 		int index = 1;
-		String issuesURL = "https://api.github.com/repos/" + fullName + "/issues?page=";
+		String issuesURL = "https://api.github.com/repos/" + fullName + "/issues?state=all&page=";
 		HttpURLConnection urlConnection = GetURLConnection.getUrlConnection(issuesURL + index);
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> issuesArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -113,7 +120,7 @@ public class IssueCrawler {
 						try {
 							DBObject object = (BasicDBObject) JSON.parse(response);
 							object.put("fn", fullName);
-							issuesArray.add(object);
+							issuecache.save(object);
 						} catch (Exception e) {
 							// TODO: handle exception
 							System.out.println("can not translate it to json----------------------------");
@@ -154,6 +161,5 @@ public class IssueCrawler {
 			}
 		}
 		
-		return issuesArray;
 	}
 }

@@ -22,7 +22,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
 public class MessageReceiver {
-	private static final String TASK_QUEUE_NAME = "filter_repo_queue";
+	private static final String TASK_QUEUE_NAME = "filter_repo_queue#1";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -75,7 +75,19 @@ public class MessageReceiver {
 			MessageReceiver.main(null);
 		}
 	}
-
+	
+	/*public static void handleTaskA(String message) {
+		System.out.println("start");
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(message);
+	}*/
+		
+	
 	public static void handleTask(String message) {
 		System.out.println(message);
 		GitCrawler gitCrawler = new GitCrawler();

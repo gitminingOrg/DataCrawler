@@ -7,18 +7,23 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class IssueCommentCrawler {
 	
-	public ArrayList<DBObject> crawlIssueComments(String fullName){
+	public void crawlIssueComments(String fullName){
 		System.out.println("Start crawl issue_comment------------------------");
 		int index = 1;
 		String issuecommentURL = "https://api.github.com/repos/" + fullName + "/issues/comments?page=";
@@ -26,7 +31,9 @@ public class IssueCommentCrawler {
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> issuecommentArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection issuecommentcache = db.getCollection(GetHostName.getHostName() + "issuecommentcache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -77,7 +84,7 @@ public class IssueCommentCrawler {
 				}
 			}
 			
-			while (response != null && !response.equals("[]")){
+			while (response != null && !response.equals("[]") && index <= 1333){
 				try{
 					JsonArray jsonArray = new JsonParser().parse(response)
 							.getAsJsonArray();
@@ -85,7 +92,7 @@ public class IssueCommentCrawler {
 						DBObject object = (BasicDBObject) JSON.parse(jsonArray
 								.get(i).toString());
 						object.put("fn", fullName);
-						issuecommentArray.add(object);
+						issuecommentcache.save(object);
 					}
 				}catch(Exception e){
 					System.out.println("can not translate it to json----------------------------");
@@ -115,12 +122,11 @@ public class IssueCommentCrawler {
 						reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
 						response = reader.readLine();
 					}catch(Exception e2){
-						e2.printStackTrace();
+						//e2.printStackTrace();
 					}
 				}
 			}
 		}
 		
-		return issuecommentArray;
 	}
 }

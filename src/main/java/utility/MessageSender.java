@@ -8,7 +8,8 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
 
 public class MessageSender {
-	private final static String TASK_QUEUE_NAME = "filter_repo_queue";
+	//private final static String TASK_QUEUE_NAME = "filter_repo_queue#1";
+	private final static String TASK_QUEUE_NAME = "commit_queue1";
 
 	public void sendMessage(String message) {
 		// TODO Auto-generated method stub

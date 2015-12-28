@@ -7,18 +7,23 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class SubscriberCrawler {
 
-	public ArrayList<DBObject> crawlSubscribers(String fullName){
+	public void crawlSubscribers(String fullName){
 		System.out.println("Start crawl subscribers------------------------");
 		int index = 1;
 		String subscribersURL = "https://api.github.com/repos/" + fullName + "/subscribers?page=";
@@ -26,7 +31,9 @@ public class SubscriberCrawler {
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> subscribersArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection subscribercache = db.getCollection(GetHostName.getHostName() + "subscribercache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -85,7 +92,7 @@ public class SubscriberCrawler {
 						DBObject object = (BasicDBObject) JSON.parse(jsonArray
 								.get(i).toString());
 						object.put("fn", fullName);
-						subscribersArray.add(object);
+						subscribercache.save(object);
 					}
 				}catch(Exception e){
 					System.out.println("can not translate it to json----------------------------");
@@ -121,6 +128,5 @@ public class SubscriberCrawler {
 			}
 		}
 		
-		return subscribersArray;
 	}
 }

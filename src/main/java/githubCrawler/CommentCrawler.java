@@ -7,18 +7,23 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
+import utility.MongoInfo;
 import utility.ValidateInternetConnection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class CommentCrawler {
 
-	public ArrayList<DBObject> crawlComments(String fullName){
+	public void crawlComments(String fullName){
 		System.out.println("Start crawl comments------------------------");
 		int index = 1;
 		String commentsURL = "https://api.github.com/repos/" + fullName + "/comments?page=";
@@ -26,7 +31,9 @@ public class CommentCrawler {
 		BufferedReader reader = null;
 		String response = "";
 		int responseCode = 200;
-		ArrayList<DBObject> commentsArray = new ArrayList<DBObject>();
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection commentcache = db.getCollection(GetHostName.getHostName() + "commentcache");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
@@ -85,7 +92,7 @@ public class CommentCrawler {
 						DBObject object = (BasicDBObject) JSON.parse(jsonArray
 								.get(i).toString());
 						object.put("fn", fullName);
-						commentsArray.add(object);
+						commentcache.save(object);
 					}
 				}catch(Exception e){
 					System.out.println("can not translate it to json----------------------------");
@@ -121,6 +128,5 @@ public class CommentCrawler {
 			}
 		}
 		
-		return commentsArray;
 	}
 }

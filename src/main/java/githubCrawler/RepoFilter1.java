@@ -19,7 +19,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
-public class RepoFilter {
+public class RepoFilter1 {
 	Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 	DB db = mongo.getDB("NewProject");
 	DBCollection repository = db.getCollection("repo");
@@ -36,18 +36,18 @@ public class RepoFilter {
 	int contributor = 0;
 
 	public static void main(String[] args) {
-		RepoFilter repoFilter = new RepoFilter();
+		RepoFilter1 repoFilter1 = new RepoFilter1();
 		try {
-			FileReader reader = new FileReader(new File("IDLog.txt"));
+			FileReader reader = new FileReader(new File("IDLog1.txt"));
 			BufferedReader bufferedReader = new BufferedReader(reader);
-			repoFilter.setId(Integer.parseInt(bufferedReader.readLine()));
+			repoFilter1.setId(Integer.parseInt(bufferedReader.readLine()));
 			bufferedReader.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		repoFilter.filter();
+		repoFilter1.filter();
 	}
 
 	public int getId() {
@@ -60,7 +60,7 @@ public class RepoFilter {
 
 	public void filter() {
 		System.out.println("Start filter repositories-----------------------");
-		while (id < 4000000) {
+		while (id < 5000000) {
 			try {
 				urlConnection = GetURLConnection.getUrlConnection(repoURL + id);
 				reader = new BufferedReader(new InputStreamReader(
@@ -100,12 +100,10 @@ public class RepoFilter {
 							}
 						}
 						
-						if(!object.get("full_name").toString().equals("behnam/openheatmap")){
-							FileWriter fileWriter = new FileWriter("IDLog.txt");
-							fileWriter.write(repo.get("id").toString());
-							fileWriter.flush();
-							fileWriter.close();
-						}
+						FileWriter fileWriter = new FileWriter("IDLog1.txt");
+						fileWriter.write(repo.get("id").toString());
+						fileWriter.flush();
+						fileWriter.close();
 					}
 					DBObject object = (BasicDBObject) JSON.parse(jsonArray.get(
 							jsonArray.size() - 1).toString());
@@ -354,37 +352,3 @@ public class RepoFilter {
 		}
 	}
 }
-	/*public boolean validateYear(String created_at,String pushed_at){
-		if(Integer.parseInt(pushed_at.split("-")[0]) > (Integer.parseInt(created_at.split("-")[0]) + 5)){
-			return true;
-		}else if(Integer.parseInt(pushed_at.split("-")[0]) == (Integer.parseInt(created_at.split("-")[0]) + 5) && Integer.parseInt(pushed_at.split("-")[1]) > Integer.parseInt(created_at.split("-")[1])){
-			return true;
-		}else if(Integer.parseInt(pushed_at.split("-")[0]) == (Integer.parseInt(created_at.split("-")[0]) + 5) && Integer.parseInt(pushed_at.split("-")[1]) == Integer.parseInt(created_at.split("-")[1]) && Integer.parseInt(pushed_at.split("-")[2].split("T")[0]) >= Integer.parseInt(created_at.split("-")[2].split("T")[0])){
-			return true;
-		}else {
-			if (filtercondition.find().size() == 1) {
-				DBObject object = filtercondition.find().next();
-				DBObject updata1 = new BasicDBObject();
-				DBObject update2 = new BasicDBObject();
-				updata1.put("yearfail", Integer.parseInt(object.get(
-						"yearfail").toString()) + 1);
-				update2.put("$set", updata1);
-				filtercondition.update(object, update2);
-			} else {
-				DBObject object = new BasicDBObject();
-				object.put("forkfail", 0);
-				object.put("contributorfail", 0);
-				object.put("commitfail", 0);
-				object.put("issuefail", 0);
-				object.put("pullfail", 0);
-				object.put("others", 0);
-				object.put("yearfail", 1);
-				filtercondition.save(object);
-			}
-			return false;
-		}
-	} 
-}*/
-// System.out.println("----------------------------------------" +
-// Integer.parseInt(repo.get("id").toString()) + ":" + repo.get("full_name"));
-// repository.save(repo);

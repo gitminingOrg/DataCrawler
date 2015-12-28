@@ -145,6 +145,7 @@ public class TreeCrawler {
 					object.put("fn", fullName);
 					tree = object;
 				}catch(Exception e){
+					//e.printStackTrace();
 					System.out.println("can not translate it to json----------------------------");
 				}
 			}
@@ -261,6 +262,7 @@ public class TreeCrawler {
 						}
 					}
 				}catch(Exception e){
+					//e.printStackTrace();
 					System.out.println("can not translate it to json----------------------------");
 				}
 			}

@@ -75,7 +75,7 @@ public class OperateComment {
 				
 				/*count the comment number by line of each repo*/
 				while(cursor2.hasNext()){
-					if(cursor2.next().get("line") != null){
+					if(cursor2.next().get("position") != null){
 						count ++;
 					}
 				}
@@ -88,6 +88,7 @@ public class OperateComment {
 			}
 			
 			cc.put("fn", repository.get("full_name").toString());
+			System.out.println(repository.get("full_name").toString());
 			commentcondition.save(cc);
 		}
 	}

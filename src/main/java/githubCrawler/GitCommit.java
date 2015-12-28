@@ -33,12 +33,12 @@ import com.mongodb.Mongo;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSON;
 
-public class GitCrawler {
+public class GitCommit {
 	private static Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 	//private static Mongo mongo = new Mongo("localhost", 27017);
 	private static DB db = mongo.getDB("ghcrawlerV3");
 	
-	private static DBCollection repository = db.getCollection("repository");
+	/*private static DBCollection repository = db.getCollection("repository");
 	private static DBCollection forks = db.getCollection("forks");
 	private static DBCollection assignees = db.getCollection("assignees");
 	private static DBCollection languages = db.getCollection("languages");
@@ -53,22 +53,22 @@ public class GitCrawler {
 			.getCollection("issuecomment");
 	private static DBCollection issue_events = db.getCollection("issueevents");
 	private static DBCollection events = db.getCollection("events");
-	private static DBCollection contents = db.getCollection("contents");
-	private static DBCollection commits = db.getCollection("commits");
-	private static DBCollection issues = db.getCollection("issues");
+	private static DBCollection contents = db.getCollection("contents");*/
+	private static DBCollection commits = db.getCollection("commitsbyapi");
+	/*private static DBCollection issues = db.getCollection("issues");
 	private static DBCollection pulls = db.getCollection("pulls");
 	private static DBCollection tree = db.getCollection("tree");
 	private static DBCollection repolist = db.getCollection("repolist");
-	private static DBCollection complete = db.getCollection("complete");
-	private static DBCollection commitnumber = db.getCollection("commitnumber");
-	private static DBCollection user = db.getCollection("user");
+	private static DBCollection complete = db.getCollection("complete");*/
+	private static DBCollection commitnumber = db.getCollection("commitnumberbyapi");
+/*	private static DBCollection user = db.getCollection("user");
 	
-	private static DBCollection usercache = db.getCollection(GetHostName.getHostName() + "usercache");
+	private static DBCollection usercache = db.getCollection(GetHostName.getHostName() + "usercache");*/
 	//private static DBCollection followercache = db.getCollection("followercache");
 	//private static DBCollection userRepocache = db.getCollection("userRepocache");
 	//private static DBCollection follower = db.getCollection("follower");
 	//private static DBCollection userRepo = db.getCollection("userRepo");
-	private static DBCollection forkcache = db.getCollection(GetHostName.getHostName() + "forkcache");
+	/*private static DBCollection forkcache = db.getCollection(GetHostName.getHostName() + "forkcache");
 	private static DBCollection assigneecache = db.getCollection(GetHostName.getHostName() + "assigneecache");
 	private static DBCollection stargazercache = db.getCollection(GetHostName.getHostName() + "stargazercache");
 	private static DBCollection contributorcache = db.getCollection(GetHostName.getHostName() + "contributorcache");
@@ -79,14 +79,14 @@ public class GitCrawler {
 	private static DBCollection commentcache = db.getCollection(GetHostName.getHostName() + "commentcache");
 	private static DBCollection issuecommentcache = db.getCollection(GetHostName.getHostName() + "issuecommentcache");
 	private static DBCollection issueeventcache = db.getCollection(GetHostName.getHostName() + "issueeventcache");
-	private static DBCollection contentcache = db.getCollection(GetHostName.getHostName() + "contentcache");
+	private static DBCollection contentcache = db.getCollection(GetHostName.getHostName() + "contentcache");*/
 	private static DBCollection commitscache = db.getCollection(GetHostName.getHostName() + "commitscache");
-	private static DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
+	/*private static DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
 	private static DBCollection pullcache = db.getCollection(GetHostName.getHostName() + "pullcache");
 	
 	private static DBObject repositoryArray = null;
 	private static DBObject languagesArray = null;
-	private static DBObject treeArray = null;
+	private static DBObject treeArray = null;*/
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -123,7 +123,7 @@ public class GitCrawler {
 
 	public void crawl(String fullName) {
 
-		usercache.drop();
+		/*usercache.drop();
 		forkcache.drop();
 		assigneecache.drop();
 		stargazercache.drop();
@@ -135,16 +135,16 @@ public class GitCrawler {
 		commentcache.drop();
 		issuecommentcache.drop();
 		issueeventcache.drop();
-		contentcache.drop();
-		//commitscache.drop();
-		issuecache.drop();
-		pullcache.drop();
+		contentcache.drop();*/
+		commitscache.drop();
+		/*issuecache.drop();
+		pullcache.drop();*/
 		//followercache.drop();
 		//userRepocache.drop();
 		//followercache = db.getCollection("followercache");
 		//userRepocache = db.getCollection("userRepocache");
 		
-		RepositoryCrawler repositoryCrawler = new RepositoryCrawler();
+		/*RepositoryCrawler repositoryCrawler = new RepositoryCrawler();
 		ForkCrawler forkCrawler = new ForkCrawler();
 		AssigneeCrawler assigneeCrawler = new AssigneeCrawler();
 		LanguageCrawler languageCrawler = new LanguageCrawler();
@@ -158,36 +158,36 @@ public class GitCrawler {
 		IssueCommentCrawler issueCommentCrawler = new IssueCommentCrawler();
 		IssueEventCrawler issueEventCrawler = new IssueEventCrawler();
 		//EventCrawler eventCrawler = new EventCrawler();
-		ContentCrawler contentCrawler = new ContentCrawler();
+		ContentCrawler contentCrawler = new ContentCrawler();*/
 		CommitCrawler commitCrawler = new CommitCrawler();
-		IssueCrawler issueCrawler = new IssueCrawler();
+		/*IssueCrawler issueCrawler = new IssueCrawler();
 		PullCrawler pullCrawler = new PullCrawler();
 		TreeCrawler treeCrawler = new TreeCrawler();
-		DownloadRepository downloadRepository = new DownloadRepository();
+		DownloadRepository downloadRepository = new DownloadRepository();*/
 		
 		//downloadRepository.downloadRepository(fullName);
-		repositoryArray = repositoryCrawler.crawlRepository(fullName);
-		forkCrawler.crawlForks(fullName);
-		assigneeCrawler.crawlAssignees(fullName);
-		languagesArray = languageCrawler.crawlLanguages(fullName);
-		stargazerCrawler.crawlStargazers(fullName);
-		contributorCrawler.crawlContributors(fullName);
-		subscriberCrawler.crawlSubscribers(fullName);
-		tagCrawler.crawlTags(fullName);
-		branchCrawler.crawlBranches(fullName);
-		gitrefCrawler.crawlGitrefs(fullName);
+		//repositoryArray = repositoryCrawler.crawlRepository(fullName);
+		//forkCrawler.crawlForks(fullName);
+		//assigneeCrawler.crawlAssignees(fullName);
+		//languagesArray = languageCrawler.crawlLanguages(fullName);
+		//stargazerCrawler.crawlStargazers(fullName);
+		//contributorCrawler.crawlContributors(fullName);
+		//subscriberCrawler.crawlSubscribers(fullName);
+		//tagCrawler.crawlTags(fullName);
+		//branchCrawler.crawlBranches(fullName);
+		//gitrefCrawler.crawlGitrefs(fullName);
 		//commentCrawler.crawlComments(fullName);
-		issueCommentCrawler.crawlIssueComments(fullName);
-		issueEventCrawler.crawlIssueEvents(fullName);
+		//issueCommentCrawler.crawlIssueComments(fullName);
+		//issueEventCrawler.crawlIssueEvents(fullName);
 		//eventsArray = eventCrawler.crawlEvents(fullName);
-		contentCrawler.crawlContents(fullName);
-		//commitCrawler.crawlCommitsByLog(fullName);;
-		issueCrawler.crawlIssues(fullName);
-		pullCrawler.crawlPulls(fullName);
-		treeArray = treeCrawler.crawlTree(fullName);
+		//contentCrawler.crawlContents(fullName);
+		commitCrawler.crawlCommits(fullName);;
+		//issueCrawler.crawlIssues(fullName);
+		//pullCrawler.crawlPulls(fullName);
+		//treeArray = treeCrawler.crawlTree(fullName);
 		
 		try{
-			if(repositoryArray != null){
+			/*if(repositoryArray != null){
 				repository.save(repositoryArray);
 			}
 			
@@ -251,9 +251,9 @@ public class GitCrawler {
 			}
 			gitrefcursor.close();
 			
-			/*for (int i = 0; i < commentsArray.size(); i++) {
+			for (int i = 0; i < commentsArray.size(); i++) {
 				comments.save(commentsArray.get(i));
-			}*/
+			}
 			
 			DBCursor issuecommentcursor = issuecommentcache.find();
 			issuecommentcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
@@ -269,9 +269,9 @@ public class GitCrawler {
 			}
 			issueeventcursor.close();
 			
-			/*for (int i = 0; i < eventsArray.size(); i++) {
+			for (int i = 0; i < eventsArray.size(); i++) {
 				events.save(eventsArray.get(i));
-			}*/
+			}
 			
 			DBCursor contentcursor = contentcache.find();
 			contentcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
@@ -296,22 +296,23 @@ public class GitCrawler {
 			
 			if(treeArray != null){
 				tree.save(treeArray);
-			}
+			}*/
+			System.out.println("Start saving data-------------------------");
 			
-			/*DBObject commitNum = new BasicDBObject();
-			commitNum.put("commitnumber", commitCrawler.commitNumber);
+			DBObject commitNum = new BasicDBObject();
+			commitNum.put("commitnumber", commitCrawler.commitNumberByAPI);
 			commitNum.put("fn", fullName);
 			commitnumber.save(commitNum);
-			commitCrawler.commitNumber = 0;
+			commitCrawler.commitNumberByAPI = 0;
 			
 			DBCursor cursor = commitscache.find();
 			cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (cursor.hasNext()) {
 				commits.save(cursor.next());
 			}
-			cursor.close();*/
+			cursor.close();
 			
-			DBCursor userCursor = usercache.find();
+			/*DBCursor userCursor = usercache.find();
 			userCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while(userCursor.hasNext()){
 				DBObject object = userCursor.next();
@@ -321,7 +322,7 @@ public class GitCrawler {
 					user.save(object);
 				}
 			}
-			userCursor.close();
+			userCursor.close();*/
 			
 			/*DBCursor followerCursor = followercache.find();
 			followerCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
@@ -337,14 +338,14 @@ public class GitCrawler {
 			}
 			userRepoCursor.close();*/
 			
-			DBObject object = new BasicDBObject();
+			/*DBObject object = new BasicDBObject();
 			object.put("full_name", fullName);
 			object.put("state", "completed");
 			object.put("date", Calendar.getInstance().getTime());
-			complete.save(object);
+			complete.save(object);*/
 		}catch(Exception e){
 			e.printStackTrace();
-			FileWriter fileWriter;
+			/*FileWriter fileWriter;
 			try {
 				fileWriter = new FileWriter("log.txt",true);
 				fileWriter.write(fullName + "\n");
@@ -375,12 +376,12 @@ public class GitCrawler {
 					e1.printStackTrace();
 				}
 			}
-			System.out.println("The mongo is connected------------");
+			System.out.println("The mongo is connected------------");*/
 		}
 
-		repositoryArray = null;
+		/*repositoryArray = null;
 		languagesArray = null;
-		treeArray = null;
+		treeArray = null;*/
 
 		/*crawlTree(fullName);
 		downloadRepository(fullName);
