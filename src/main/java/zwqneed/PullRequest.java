@@ -5,6 +5,9 @@ public class PullRequest {
 	String fn;
 	String committer;
 	String created_time;
+	boolean is_merged;
+	boolean is_insider;
+	double time_close = -1;
 	
 	int commit_num=-1;
 	int churn_total_size=-1;
@@ -14,7 +17,7 @@ public class PullRequest {
 	int final_churn_file_num=-1;
 	
 	int proj_loc=-1;
-	int proj_age=-1;
+	double proj_age=-1;
 	int proj_fork=-1;
 	int proj_star=-1;
 	int proj_insider=-1;
@@ -25,7 +28,7 @@ public class PullRequest {
 	int sissue_num=-1;
 	int sclosedPR_num=-1;
 	int smergedPR_num=-1;
-	int sclosedPR_avgtime=-1;
+	double sclosedPR_avgtime=-1;
 	public int getCommit_num() {
 		return commit_num;
 	}
@@ -67,12 +70,6 @@ public class PullRequest {
 	}
 	public void setProj_loc(int proj_loc) {
 		this.proj_loc = proj_loc;
-	}
-	public int getProj_age() {
-		return proj_age;
-	}
-	public void setProj_age(int proj_age) {
-		this.proj_age = proj_age;
 	}
 	public int getProj_fork() {
 		return proj_fork;
@@ -128,12 +125,6 @@ public class PullRequest {
 	public void setSmergedPR_num(int smergedPR_num) {
 		this.smergedPR_num = smergedPR_num;
 	}
-	public int getSclosedPR_avgtime() {
-		return sclosedPR_avgtime;
-	}
-	public void setSclosedPR_avgtime(int sclosedPR_avgtime) {
-		this.sclosedPR_avgtime = sclosedPR_avgtime;
-	}
 	public String getFn() {
 		return fn;
 	}
@@ -157,6 +148,36 @@ public class PullRequest {
 	}
 	public void setCreated_time(String created_time) {
 		this.created_time = created_time;
+	}
+	public boolean isIs_merged() {
+		return is_merged;
+	}
+	public void setIs_merged(boolean is_merged) {
+		this.is_merged = is_merged;
+	}
+	public double getTime_close() {
+		return time_close;
+	}
+	public void setTime_close(double time_close) {
+		this.time_close = time_close;
+	}
+	public boolean isIs_insider() {
+		return is_insider;
+	}
+	public void setIs_insider(boolean is_insider) {
+		this.is_insider = is_insider;
+	}
+	public double getProj_age() {
+		return proj_age;
+	}
+	public void setProj_age(double proj_age) {
+		this.proj_age = proj_age;
+	}
+	public double getSclosedPR_avgtime() {
+		return sclosedPR_avgtime;
+	}
+	public void setSclosedPR_avgtime(double sclosedPR_avgtime) {
+		this.sclosedPR_avgtime = sclosedPR_avgtime;
 	}
 	
 	

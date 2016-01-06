@@ -28,6 +28,10 @@ public class MongoQuery {
 		MongoDatabase database = mongoClient.getDatabase(db);
 		FindIterable<Document> iterable = database
 				.getCollection(collection).find(document);
+		if(collection.contains("pulls")){
+			iterable.sort(new Document("number",1));
+		}
+		
 		System.out.println(".....");
 		List<Document> documents = new ArrayList<Document>();
 		iterable.into(documents);

@@ -17,15 +17,17 @@ public class ProjectDataFetch {
 	}
 	
 	public List<Document> fetchProjectMemberEvent(int repo_id){
+		System.out.println("fetchProjectMemberEvent");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put("type", "MemberEvent");
-		//filters.put("repo.id", repo_id);
+		filters.put("repo.id", repo_id);
 		List<Document> result = mongoQuery.search(DBCollectionInfo.EVENT_DB, DBCollectionInfo.EVENT_COLLECTION, filters);
 		return result;
 	}
 	
 	public List<Document> fetchProjectForkEvent(String repo_name){
+		System.out.println("fetchProjectForkEvent");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put("type", "ForkEvent");
@@ -35,6 +37,7 @@ public class ProjectDataFetch {
 	}
 	
 	public List<Document> fetchProjectStarEvent(String repo_name){
+		System.out.println("fetchProjectStarEvent");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put("type", "WatchEvent");
@@ -44,6 +47,7 @@ public class ProjectDataFetch {
 	}
 	
 	public List<Document> fetchProjectMemberEvent(String repo_name){
+		System.out.println("fetchProjectMemberEvent");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put("type", "MemberEvent");
@@ -53,18 +57,20 @@ public class ProjectDataFetch {
 	}
 	
 	public Document fetchProjectInfo(int repo_id){
+		System.out.println("fetchProjectInfo");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
-		filters.put("repo.id", repo_id);
+		filters.put("id", repo_id);
 		Document result = mongoQuery.searchOne(DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.REPO_COLLECTION, filters);
 
 		return result;
 	}
 	
 	public Document fetchProjectInfo(String repo_name){
+		System.out.println("fetchProjectInfo");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
-		filters.put("repo.name", repo_name);
+		filters.put("full_name", repo_name);
 		Document result = mongoQuery.searchOne(DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.REPO_COLLECTION, filters);
 
 		return result;
