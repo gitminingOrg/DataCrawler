@@ -9,6 +9,6 @@ public class DBCollectionInfo {
 	public final static String ISSUE_COLLECTION = "issues";
 	public final static String RESULT_COLLECTION = "result";
 	
-	public final static String EVENT_DB = "historyevents";
+	public final static String EVENT_DB = "historyevents2";
 	public final static String EVENT_COLLECTION = "spec_events";
 }

@@ -27,7 +27,7 @@ public class AnalyseDriver {
 		System.out.println(project);
 		AnalyseDriver analyseDriver = new AnalyseDriver();
 		analyseDriver.anaylseOpenPull(pulls, project);
-		//analyseDriver.analyseProjectHistoryData(pulls, project);
+		analyseDriver.analyseProjectHistoryData(pulls, project);
 		
 		for (Document document : pulls) {
 			analyseDriver.analyseSubmitterCommitsData(document, project);
@@ -36,8 +36,9 @@ public class AnalyseDriver {
 			analyseDriver.analyseProjectLevelData(pullRequest, project);
 			MongoQuery mongoQuery = new MongoQuery();
 			mongoQuery.insert(pullRequest, DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.RESULT_COLLECTION);
+			System.err.println(new Date());
 		}
-		System.err.println(new Date());
+		
 	}
 	
 	/**
@@ -191,6 +192,7 @@ public class AnalyseDriver {
 		//anaylse related commits
 		PullRequestFetch pullRequestFetch = new PullRequestFetch();
 		List<Document> commits = pullRequestFetch.fetchPullCommits(fn, pull_id);
+		HashSet<String> committers = new HashSet<String>();
 		
 		int codeChangeMax = 0;
 		int codeChangeTotal = 0;
@@ -206,8 +208,14 @@ public class AnalyseDriver {
 			
 			int change_file = jsonObject.get("files").getAsJsonArray().size();			
 			fileChangeTotal+=change_file;
+			if(!jsonObject.get("committer").isJsonNull()){
+				String commiter  = jsonObject.get("committer").getAsJsonObject().get("login").getAsString();
+				if(!committers.contains(commiter)){
+					committers.add(commiter);
+				}
+			}
 		}
-		
+		int committer_num = committers.size();
 		//get other items analysed by other funcs
 //		int fork = pullDocument.getInteger("fork");
 //		int star = pullDocument.getInteger("star");
@@ -229,6 +237,7 @@ public class AnalyseDriver {
 		pullRequest.setIs_merged(merged);
 		pullRequest.setTime_close(closeTime);
 		
+		pullRequest.setCommitter_num(committer_num);
 		pullRequest.setCommit_num(commitNum);
 		pullRequest.setChurn_final_size(finalChangeSize);
 		pullRequest.setChurn_total_size(codeChangeTotal);
@@ -303,19 +312,20 @@ public class AnalyseDriver {
 		for (Document commit : pullCommits) {
 			JsonObject commitJson = parser.parse(commit.toJson()).getAsJsonObject();
 			String commit_create = commitJson.get("commit").getAsJsonObject().get("committer").getAsJsonObject().get("date").getAsString().replaceAll("T", " ").replaceAll("Z", "");
+			if(commitJson.get("committer").isJsonNull()){
+				continue;
+			}
 			String commiter = commitJson.get("committer").getAsJsonObject().get("login").getAsString();
-			if(commiter.equals(submitter) || early_time.compareTo(commit_create) > 0){
-				if(early_time.equals("")){
+			if(commiter.equals(submitter)){
+				if(early_time.equals("") || early_time.compareTo(commit_create) > 0){
 					early_time = commit_create;
 				}
 			}
-			Date commitTime = sdf.parse(commit_create);
-			pullTime = commitTime;			
 		}
 		if(!early_time.equals("")){
 			pullTime = sdf.parse(early_time.replaceAll("T", " ").replaceAll("Z", ""));
 		}
-
+		System.out.println(pullTime+"11111111111111111111111111111");
 		
 		SubmitterDataFetch submitterDataFetch = new SubmitterDataFetch();
 		List<Document> commits = submitterDataFetch.fetchPullPersonalCommits(fn, userName);

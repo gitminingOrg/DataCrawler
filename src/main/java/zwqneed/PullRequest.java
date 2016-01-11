@@ -9,6 +9,7 @@ public class PullRequest {
 	boolean is_insider;
 	double time_close = -1;
 	
+	int committer_num = -1;
 	int commit_num=-1;
 	int churn_total_size=-1;
 	int churn_final_size=-1;
@@ -178,6 +179,12 @@ public class PullRequest {
 	}
 	public void setSclosedPR_avgtime(double sclosedPR_avgtime) {
 		this.sclosedPR_avgtime = sclosedPR_avgtime;
+	}
+	public int getCommitter_num() {
+		return committer_num;
+	}
+	public void setCommitter_num(int committer_num) {
+		this.committer_num = committer_num;
 	}
 	
 	
