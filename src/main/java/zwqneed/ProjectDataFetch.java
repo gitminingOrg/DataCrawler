@@ -72,7 +72,6 @@ public class ProjectDataFetch {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put("full_name", repo_name);
 		Document result = mongoQuery.searchOne(DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.REPO_COLLECTION, filters);
-
 		return result;
 	}
 }

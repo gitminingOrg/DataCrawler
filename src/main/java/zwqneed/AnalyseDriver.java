@@ -10,20 +10,59 @@ import java.util.List;
 import org.apache.commons.io.EndianUtils;
 import org.bson.Document;
 
+import utility.MongoInfo;
+
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoDatabase;
 
 public class AnalyseDriver {
 
-	public static void main(String[] args) throws ParseException {
+	public static String ownerType;
+	public static String ownerLogin;
+	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
+		AnalyseDriver analyseDriver = new AnalyseDriver();
+		List<String> repoStrings =analyseDriver.getRepos();
+		for (int i=0; i<repoStrings.size(); i++) {
+			String projectName = repoStrings.get(i);
+			System.err.println("repo no." + i + " " + projectName + "start");
+			analyseDriver.analyseRepoPull(projectName);
+			System.err.println("repo no." + i + " " + projectName + "finish");
+		}
+	}
+	
+	public List<String> getRepos(){
+		List<String> repos = new ArrayList<String>();
+		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
+		MongoDatabase db = mongoClient.getDatabase("Experiment");
+		FindIterable<Document> exist = db.getCollection("repocondition").find();
+		for (Document document : exist) {
+			String json = document.toJson();
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(json);
+			String repo = element.getAsJsonObject().get("fn").getAsString();
+			repos.add(repo);
+		}
+		System.out.println(repos.size()+"repos to filter");
+		mongoClient.close();
+		
+		return repos;
+	}
+	
+	public void analyseRepoPull(String projectName) throws Exception{
 		System.err.println(new Date());
 		PullRequestFetch pullRequestFetch = new PullRequestFetch();
 		ProjectDataFetch projectDataFetch = new ProjectDataFetch();
 
-		String projectName = "Netflix/servo";
 		List<Document> pulls = pullRequestFetch.fetchClosedPullRequest(projectName);
 		Document project = projectDataFetch.fetchProjectInfo(projectName);
+		ownerType = project.get("owner",Document.class).getString("type");
+		ownerLogin = project.get("owner",Document.class).getString("login");
+		
 		System.out.println(project);
 		AnalyseDriver analyseDriver = new AnalyseDriver();
 		analyseDriver.anaylseOpenPull(pulls, project);
@@ -38,7 +77,6 @@ public class AnalyseDriver {
 			mongoQuery.insert(pullRequest, DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.RESULT_COLLECTION);
 			System.err.println(new Date());
 		}
-		
 	}
 	
 	/**
@@ -87,16 +125,27 @@ public class AnalyseDriver {
 		}
 	}
 	
-	public void analyseProjectHistoryData(List<Document> pulls,Document project) throws ParseException{
+	public void analyseProjectHistoryData(List<Document> pulls,Document project) throws Exception{
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObject = parser.parse(project.toJson()).getAsJsonObject();
 		String repo_name = jsonObject.get("full_name").getAsString();
 		
 		ProjectDataFetch projectDataFetch = new ProjectDataFetch();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		List<Document> forkEvents = projectDataFetch.fetchProjectForkEvent(repo_name);
-		List<Document> starEvents = projectDataFetch.fetchProjectStarEvent(repo_name);
-		List<Document> memberEvents = projectDataFetch.fetchProjectMemberEvent(repo_name);
+		HistoryEventFetcher historyEventFetcher = new HistoryEventFetcher();
+		List<Event> forkEvents = historyEventFetcher.getEvents(repo_name, "ForkEvent");
+		
+		forkEvents.add(new Event("", "", new Date(), "", ""));
+		List<Event> starEvents = historyEventFetcher.getEvents(repo_name, "WatchEvent");
+		starEvents.add(new Event("", "", new Date(), "", ""));
+		
+		//if owner himself is a user ,add it to insiders
+		List<Event> memberEvents = historyEventFetcher.getEvents(repo_name, "MemberEvent");
+		if(!ownerType.equals("Organization")){
+			memberEvents.add(0,new Event(repo_name, "MemberEvent", new Date(0), ownerLogin, "Member"));
+		}
+		memberEvents.add(new Event("", "", new Date(), "", ""));
+		
 		HashSet<String> stargazers = new HashSet<String>();
 		int pull_index = 0;
 		int fork_index = 0;
@@ -109,25 +158,25 @@ public class AnalyseDriver {
 		while(pull_index<pulls.size()){
 			Document pull = pulls.get(pull_index);
 			String pull_login = pull.get("user", Document.class).getString("login");
-			System.out.println(pull_login+"pull_loginaaaaaaa");
 			Date pull_time = sdf.parse(pull.getString("created_at").replaceAll("T", " ").replaceAll("Z", ""));
 			
-			Document forkEvent = forkEvents.get(fork_index);
-			Date fork_time = sdf.parse(forkEvent.getString("created_at").replaceAll("T", " ").replaceAll("Z", ""));
+			Event forkEvent = forkEvents.get(fork_index);
+			Date fork_time = forkEvent.getTime();
 			
-			Document starEvent = starEvents.get(star_index);	
-			Date star_time = sdf.parse(starEvent.getString("created_at").replaceAll("T", " ").replaceAll("Z", ""));
-			String stargazer = starEvent.get("actor", Document.class).getString("login");
+			Event starEvent = starEvents.get(star_index);	
+			Date star_time = starEvent.getTime();
+			String stargazer = starEvent.getPerson();
 			
-			Document memberEvent = memberEvents.get(member_index);
-			Date member_time = sdf.parse(memberEvent.getString("created_at").replaceAll("T", " ").replaceAll("Z", ""));
-			boolean add = memberEvent.get("payload", Document.class).getString("action").equals("added");
-			String login = memberEvent.get("payload", Document.class).get("member", Document.class).getString("login");
+			Event memberEvent = memberEvents.get(member_index);
+			Date member_time = memberEvent.getTime();
+			String login = memberEvent.getPerson();
+			
 			//all events after pull time , calculate once
 			if(pull_time.before(member_time) && pull_time.before(star_time) && pull_time.before(fork_time)){
 				pull.append("fork", fork_index);
 				pull.append("star", start_count);
 				pull.append("insider", member_count);
+				System.out.println("History Event !!!!!!!!!"+fork_index+"!!!!"+start_count+"!!!!!!!!"+member_count+"!!!!!!!!!!!");
 				if(members.contains(pull_login)){
 					pull.append("is_insider", true);
 				}else{
@@ -136,17 +185,14 @@ public class AnalyseDriver {
 				pull_index++;
 			}else{
 				if(!pull_time.before(member_time)){
-					if(add){
+					if(!members.contains(login)){
 						member_count++;
 						members.add(login);
-					}else{
-						member_count--;
-						members.remove(login);
 					}
 					member_index++;
 				}
 				
-				if(pull_time.before(star_time)){
+				if(!pull_time.before(star_time)){
 					if(!stargazers.contains(stargazer)){
 						start_count++;
 						stargazers.add(stargazer);
@@ -154,7 +200,7 @@ public class AnalyseDriver {
 					star_index++;
 				}
 				
-				if(pull_time.before(fork_time)){
+				if(!pull_time.before(fork_time)){
 					fork_index++;
 				}
 			}
@@ -217,10 +263,10 @@ public class AnalyseDriver {
 		}
 		int committer_num = committers.size();
 		//get other items analysed by other funcs
-//		int fork = pullDocument.getInteger("fork");
-//		int star = pullDocument.getInteger("star");
-//		int insider = pullDocument.getInteger("insider");
-//		boolean is_insider = pullDocument.getBoolean("is_insider");
+		int fork = pullDocument.getInteger("fork");
+		int star = pullDocument.getInteger("star");
+		int insider = pullDocument.getInteger("insider");
+		boolean is_insider = pullDocument.getBoolean("is_insider");
 		int open_pull = pullDocument.getInteger("open_pull");
 		
 		int submitter_commits_num = pullDocument.getInteger("submitter_commits_num");
@@ -245,10 +291,10 @@ public class AnalyseDriver {
 		pullRequest.setChurn_file_num(fileChangeTotal);
 		pullRequest.setFinal_churn_file_num(finalChangeFile);
 		
-//		pullRequest.setProj_fork(fork);
-//		pullRequest.setProj_star(star);
-//		pullRequest.setProj_insider(insider);
-//		pullRequest.setIs_insider(is_insider);
+		pullRequest.setProj_fork(fork);
+		pullRequest.setProj_star(star);
+		pullRequest.setProj_insider(insider);
+		pullRequest.setIs_insider(is_insider);
 		pullRequest.setProj_open_pr(open_pull);
 		
 		pullRequest.setScommit_num(submitter_commits_num);

@@ -20,7 +20,7 @@ public class HistoryFilter {
 	private static HashSet<Integer> repoIdSet = new HashSet<Integer>();
 	public static void init(){
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("ghcrawlerV3");
+		MongoDatabase db = mongoClient.getDatabase("NewProject");
 		FindIterable<Document> exist = db.getCollection("repo").find();
 		for (Document document : exist) {
 			String json = document.toJson();
@@ -29,12 +29,13 @@ public class HistoryFilter {
 			int repo_id = element.getAsJsonObject().get("id").getAsInt();
 			repoIdSet.add(repo_id);
 		}
+		System.out.println(repoIdSet.size()+"repos to filter");
 		mongoClient.close();
 	}
 	
 	public static boolean validate(String hour){
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("historyevents");
+		MongoDatabase db = mongoClient.getDatabase("historyevents2");
 		FindIterable<Document> iterable = db.getCollection("hour").find(new Document("hour", hour));
 		if (iterable.first() != null) {
 			System.out.println(hour + " exists!");
@@ -48,7 +49,7 @@ public class HistoryFilter {
 	public static void hashFilter(File file,String hour){
 		try{
 			MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-			MongoDatabase db = mongoClient.getDatabase("historyevents");
+			MongoDatabase db = mongoClient.getDatabase("historyevents2");
 			
 			Document document = new Document();
 			document.append("hour", hour);
@@ -63,9 +64,11 @@ public class HistoryFilter {
 				JsonObject event = parser.parse(line).getAsJsonObject();
 				int repoId = 0;
 				if(event.has("repo")){
-					String eventString = event.toString();
-					String id = eventString.split(":")[3].split(",")[0];
-					repoId = Integer.parseInt(id);
+//					String eventString = event.toString();
+//					String id = eventString.split(":")[3].split(",")[0];
+//					repoId = Integer.parseInt(id);
+					System.out.println(event.get("repo").toString());
+					repoId = event.get("repo").getAsJsonObject().get("id").getAsInt();
 				}else if(event.has("repository")){
 					repoId = event.get("repository").getAsJsonObject().get("id").getAsInt();
 				}
@@ -81,8 +84,6 @@ public class HistoryFilter {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 }

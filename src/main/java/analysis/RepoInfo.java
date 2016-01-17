@@ -21,28 +21,46 @@ import utility.MysqlInfo;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 
 public class RepoInfo {
+	public static String languages = "java,Ruby,Python,C,JavaScript,Perl,PHP,C++,HTML"
+			+ ",Shell，Objective-C,VimL,C#,Emacs Lisp,Erlang,Lua,Clojure,CSS,Haskell,"
+			+ "Scala,Common Lisp,R";
 	public static void main(String[] args) throws Exception {
 		RepoInfo repoInfo = new RepoInfo();
 //		repoInfo.getRepo();
 //		System.out.println("repo!!!!!!!!!");
-		repoInfo.getContribution();
-		System.out.println("getContribution!!");
-		repoInfo.getCollaborators();
-		System.out.println("getCollaborators!!");
-		repoInfo.analyseLanguage();
-		repoInfo.getIssueAndPull();
-		repoInfo.analyseContributors();
-		repoInfo.analyseCollaborators();
-		repoInfo.getCommitCount();
-		repoInfo.updateScore();
-		repoInfo.generateTag();
-		repoInfo.generateRepoTagStub();
-		repoInfo.calculateRepoSimilarity();
+////		repoInfo.getContribution();
+////		System.out.println("getContribution!!");
+////		repoInfo.getCollaborators();
+////		System.out.println("getCollaborators!!");
+//		repoInfo.analyseLanguage();
+//		System.out.println("analyseLanguage!!");
+//		repoInfo.getIssueAndPull();
+//		System.out.println("getIssueAndPull!!");
+//		repoInfo.analyseContributors();
+//		System.out.println("analyseContributors!!");
+//		repoInfo.analyseCollaborators();
+//		System.out.println("analyseCollaborators!!");
+//		repoInfo.getCommitCount();
+//		System.out.println("getCommitCount!!");
+////		repoInfo.updateScore();
+////		System.out.println("updateScore!!");
+////		repoInfo.generateTag();
+////		repoInfo.generateRepoTagStub();
+////		repoInfo.calculateRepoSimilarity();
+//		repoInfo.language_stat();
+//		repoInfo.type_stat();
+//		repoInfo.year_stat();
+		repoInfo.analysisClasses();
 	}
 	
 	public void getIssueAndPull() throws Exception{
@@ -88,7 +106,7 @@ public class RepoInfo {
 				27017);
 		MongoDatabase database = mongoClient.getDatabase("ghcrawlerV3");
 		FindIterable<Document> repoIterable = database.getCollection(
-				"repo").find();
+				"repository").find();
 
 		// get mysql connection
 		Connection connection = MysqlInfo.getMysqlConnection();
@@ -101,7 +119,9 @@ public class RepoInfo {
 		updateStmt.execute();
 		
 		connection.setAutoCommit(false);
-		String sql = "insert into repotest(id,full_name,description,fork,owner_id,owner_name,owner_type,create_time,push_time,update_time,stargazers,subscribers,fork_num,size,hot,mature,popular,nb) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "replace into repotest(id,full_name,description,fork,owner_id,owner_name,owner_type,create_time,push_time,update_time,stargazers,subscribers,fork_num,size,hot,mature,popular,nb,gitclone_url,github_url,language) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+		//String sql = "replace into repotest(id,full_name,description,fork,owner_id,owner_name,owner_type,create_time,push_time,update_time,stargazers,subscribers,fork_num,size,hot,mature,popular,nb) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+
 		PreparedStatement stmt = connection.prepareStatement(sql);
 
 		JsonParser parser = new JsonParser();
@@ -189,7 +209,20 @@ public class RepoInfo {
 			if(nb>10){
 				nb = 10;
 			}
-			stmt.setInt(18, nb);	
+			stmt.setInt(18, nb);
+			
+			String gitclone_url = repoJsonObject.get("clone_url").getAsString();
+			stmt.setString(19, gitclone_url);
+			
+			String github_url = repoJsonObject.get("html_url").getAsString();
+			stmt.setString(20, github_url);
+			
+			String language = "unknown";
+			if(!repoJsonObject.get("language").isJsonNull()){
+				language = repoJsonObject.get("language").getAsString();
+			}
+			
+			stmt.setString(21, language);
 			stmt.execute();
 		}
 		connection.commit();
@@ -484,7 +517,7 @@ public class RepoInfo {
 			int release = 10;
 			int total = (hot+mature+popular+nb+contributor+size+update+release)/8;
 			
-			String insertSql = "insert into reposcore values(?,?,?,?,?,?,?,?,?,?)";
+			String insertSql = "replace into reposcore values(?,?,?,?,?,?,?,?,?,?)";
 			stmt = connection.prepareStatement(insertSql);
 			stmt.setInt(1, repo_id);
 			stmt.setInt(2, hot);
@@ -503,7 +536,7 @@ public class RepoInfo {
 	}
 	
 	public void generateTag() throws Exception{
-		String sql = "insert into tag(node_id,name,weight) values(?,?,?);";
+		String sql = "replace into tag(node_id,name,weight) values(?,?,?);";
 		Connection connection = MysqlInfo.getMysqlConnection();
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		char init = 'A'-1;
@@ -540,7 +573,7 @@ public class RepoInfo {
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		ResultSet resultSet = stmt.executeQuery();
 		connection.setAutoCommit(false);
-		String insertSql = "insert into repo_tag(repo_id,tag_id) values(?,?);";
+		String insertSql = "replace into repo_tag(repo_id,tag_id) values(?,?);";
 		stmt = connection.prepareStatement(insertSql);
 		
 		while(resultSet.next()){
@@ -643,5 +676,207 @@ public class RepoInfo {
 		stmt.close();
 		connection.close();
 	}
+	
+	public void language_stat() throws Exception{
+		String sql = "select count(*) AS count, language from language group by language order by count desc;";
+		Connection connection = MysqlInfo.getMysqlConnection();
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		Map<String,Integer> maps = new HashMap<String, Integer>();
+		int others = 0;
+		while(resultSet.next()){
+			String language = resultSet.getString("language");
+			int count = resultSet.getInt("count");
+			if(languages.contains(language)){
+				maps.put(language, count);
+			}else{
+				others+=count;
+			}
+		}
+		maps.put("others", others);
+		
+		String insertSql = "replace into language_stat values(?,?)";
+		connection.setAutoCommit(false);
+		stmt = connection.prepareStatement(insertSql);
+		Set<String> keys = maps.keySet();
+		for (String key : keys) {
+			stmt.setString(1, key);
+			stmt.setInt(2, maps.get(key));
+			stmt.execute();
+		}
+		connection.commit();
+	}
 
+	public void type_stat() throws Exception{
+		String sql = "select count(*) AS count, t.name AS type from tag t, repo_tag rt where t.id = rt.tag_id group by type;";
+		Connection connection = MysqlInfo.getMysqlConnection();
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		Map<String,Integer> maps = new HashMap<String, Integer>();
+		
+		while(resultSet.next()){
+			String type = resultSet.getString("type");
+			int count = resultSet.getInt("count");
+			if(type.length() <= 5){
+				maps.put(type, count);
+			}
+		}
+		
+		String insertSql = "replace into type_stat values(?,?)";
+		connection.setAutoCommit(false);
+		stmt = connection.prepareStatement(insertSql);
+		Set<String> keys = maps.keySet();
+		for (String key : keys) {
+			stmt.setString(1, key);
+			stmt.setInt(2, maps.get(key));
+			stmt.execute();
+		}
+		connection.commit();
+	}
+
+	public void year_stat() throws Exception{
+		String sql = "select count(*) AS count, substr(create_time,1,4) AS year from repotest group by year;";
+		Connection connection = MysqlInfo.getMysqlConnection();
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		Map<Integer,Integer> maps = new HashMap<Integer, Integer>();
+		
+		while(resultSet.next()){
+			int year = Integer.parseInt(resultSet.getString("year"));
+			int count = resultSet.getInt("count");
+			maps.put(year, count);
+		}
+		
+		String insertSql = "replace into year_stat values(?,?)";
+		connection.setAutoCommit(false);
+		stmt = connection.prepareStatement(insertSql);
+		Set<Integer> keys = maps.keySet();
+		for (Integer key : keys) {
+			stmt.setInt(1, key);
+			stmt.setInt(2, maps.get(key));
+			stmt.execute();
+		}
+		connection.commit();
+	}
+	
+	public void analysisClasses() throws Exception{
+//		Map<String,Integer> wordMap = new HashMap<String, Integer>();
+//		String sql = "select description from repotest";
+//		Connection connection = MysqlInfo.getMysqlConnection();
+//		PreparedStatement stmt = connection.prepareStatement(sql);
+//		ResultSet resultSet = stmt.executeQuery();
+//		while (resultSet.next()) {
+//			String description = resultSet.getString("description");
+//			String[] items = description.split(" ");
+//			for (String item : items) {
+//				if(!wordMap.containsKey(item)){
+//					wordMap.put(item, 1);
+//				}else{
+//					wordMap.put(item, wordMap.get(item)+1);
+//					System.out.println(item+"---------------");
+//				}
+//			}
+//		}
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection repo = db.getCollection("repository");
+		DBCursor repos = repo.find();
+		repos.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		
+		while(repos.hasNext()){
+			DBObject object = repos.next();
+			if(object.get("description") != null){
+				//System.out.println(object.get("description").toString().replaceAll("[^a-zA-Z'0-9]", " ").replaceAll("\\s+", " "));
+				String description = object.get("description").toString().replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+				for(int i = 0 ; i < description.split(" ").length ; i ++){
+					String word = description.split(" ")[i].toLowerCase();
+					if(map.containsKey(word)){
+						map.put(word, map.get(word) + 1);
+					}else{
+						map.put(word, 1);
+					}
+				}
+			}
+		}
+
+		Connection connection = MysqlInfo.getMysqlConnection();
+		String sqlInsert = "replace into word values(?,?)";
+		Set<String> words = map.keySet();
+		connection.setAutoCommit(false);
+		for (String word : words) {
+			int count = map.get(word);
+			if(count < 2){
+				continue;
+			}
+			PreparedStatement stmt = connection.prepareStatement(sqlInsert);
+			stmt.setString(1, word);
+			stmt.setInt(2, count);
+			stmt.execute();
+			stmt.close();
+		}
+		connection.commit();		
+		connection.close();
+	}
+	
+	public void ohno() throws Exception{
+		String sql = "select * from word";
+		String insertSQL = "insert into tag(node_id,name,weight) values(?,?,?)";
+		Connection connection = MysqlInfo.getMysqlConnection();
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		
+		while(resultSet.next()){
+			String name = resultSet.getString("word");
+			int count = resultSet.getInt("count");
+			String node = "0";
+			PreparedStatement stmt2 = connection.prepareStatement(insertSQL);
+			stmt2.setString(1, node);
+			stmt2.setString(2, name);
+			stmt2.setInt(3, count);
+			stmt2.execute();
+			stmt2.close();
+		}
+		stmt.close();
+		connection.close();
+	}
+	
+	public void addRepoTag() throws Exception{
+		Map<String,Integer> map = new HashMap<String, Integer>();
+		Connection connection = MysqlInfo.getMysqlConnection();
+		String tagSQL = "select id,name from tag";
+		PreparedStatement stmt = connection.prepareStatement(tagSQL);
+		ResultSet resultSet = stmt.executeQuery();
+		while (resultSet.next()) {
+			String name = resultSet.getString("name");
+			int id = resultSet.getInt("id");
+			map.put(name,id);
+		}
+		resultSet.close();
+		Set<String> types = map.keySet();
+		
+		String insertSQL = "insert into repo_tag(repo_id,tag_id) values(?,?)";
+		String sql = "select id,description from repotest";
+		stmt = connection.prepareStatement(sql);
+		ResultSet resultSet2 = stmt.executeQuery();
+		
+		while (resultSet2.next()) {
+			int id = resultSet2.getInt("id");
+			String description = resultSet2.getString("description");
+			for (String type : types) {
+				if(description.contains(type)){
+					PreparedStatement stmt2 = connection.prepareStatement(insertSQL);
+					stmt2.setInt(1, id);
+					stmt2.setInt(2, map.get(type));
+					stmt2.execute();
+					stmt2.close();
+				}
+			}
+
+		}
+		resultSet2.close();
+		stmt.close();
+		connection.close();
+	}
+	
 }

@@ -46,10 +46,9 @@ public class PullRequestFetch {
 		System.out.println("fetchPullCommits");
 		MongoQuery mongoQuery = new MongoQuery();
 		Map<String, Object> filters = new HashMap<String, Object>();
-		String fn = "https://api.github.com/repos/"+repo_name+"/pulls/"+pull_id+"/commits";
-		System.out.println(fn);
+		System.out.println(repo_name);
 		System.out.println(pull_id);
-		//filters.put("fn", repo_name);
+		filters.put("fn", repo_name);
 		filters.put("pn", pull_id);
 		List<Document> commits = mongoQuery.search(DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.PULL_COMMIT_COLLECTION, filters);
 		return commits;
