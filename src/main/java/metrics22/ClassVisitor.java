@@ -47,6 +47,7 @@ public class ClassVisitor extends ASTVisitor {
 	List<VarDeclare> varDeclares = new ArrayList<VarDeclare>();
 	List<SpecialStmt> specialStmts = new ArrayList<SpecialStmt>();
 	List<String> methodsParameterNames = new ArrayList<String>();
+	List<metrics22.Expression> express=new ArrayList<metrics22.Expression>();
 	
 //////////////////////////////////////////// level class /////////////////////////////////////////////////
 	@Override
@@ -98,6 +99,8 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(ExpressionStatement node) {
 		// TODO Auto-generated method stub
+		metrics22.Expression e=new metrics22.Expression(node.getStartPosition(), node.getLength(), node.toString());
+		express.add(e);
 		return super.visit(node);
 	}
 	/**
