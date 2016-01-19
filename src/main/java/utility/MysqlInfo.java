@@ -2,6 +2,8 @@ package utility;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
@@ -27,5 +29,14 @@ public class MysqlInfo {
 		//return connection
 		Connection connection = DriverManager.getConnection(url);
 		return connection;
+	}
+	
+	public static int startRepo() throws Exception{
+		Properties properties = new Properties();
+		String path = Thread.currentThread().getContextClassLoader().getResource("config.properties").getPath();
+		properties.load(new FileInputStream(new File(path)));
+		String indexString = properties.getProperty("index");
+		int index = Integer.parseInt(indexString);
+		return index;
 	}
 }
