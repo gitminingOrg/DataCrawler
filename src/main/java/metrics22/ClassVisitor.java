@@ -46,7 +46,7 @@ public class ClassVisitor extends ASTVisitor {
 	List<Assign> assigns = new ArrayList<Assign>();
 	List<VarDeclare> varDeclares = new ArrayList<VarDeclare>();
 	List<SpecialStmt> specialStmts = new ArrayList<SpecialStmt>();
-	
+	List<String> methodsParameterNames = new ArrayList<String>();
 	
 //////////////////////////////////////////// level class /////////////////////////////////////////////////
 	@Override
@@ -55,6 +55,8 @@ public class ClassVisitor extends ASTVisitor {
 	 */
 	public boolean visit(TypeDeclaration node) {
 		// TODO Auto-generated method stub
+		node.getStartPosition();
+		node.getLength();
 		className = node.getName().getIdentifier();
 		return super.visit(node);
 	}
@@ -80,7 +82,13 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodDeclaration node) {
 		// TODO Auto-generated method stub
+		node.getStartPosition();
 		List<SingleVariableDeclaration> parameters = node.parameters();
+		for (SingleVariableDeclaration singleVariableDeclaration : parameters) {
+			String name = singleVariableDeclaration.getName().toString();
+			System.out.println(name + "method para");
+			methodsParameterNames.add(name);
+		}
 		Block block = node.getBody();
 		return super.visit(node);
 	}
@@ -240,6 +248,7 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodRefParameter node) {
 		// TODO Auto-generated method stub
+		System.out.println(node.getName() + "ref");
 		return super.visit(node);
 	}
 

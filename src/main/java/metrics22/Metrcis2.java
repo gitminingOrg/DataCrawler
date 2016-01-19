@@ -39,7 +39,6 @@ public class Metrcis2 {
 		CompilationUnit result = (CompilationUnit) (astParser.createAST(null));
 		// astParser.setKind(ASTParser.K_STATEMENTS);
 		// Block result = (Block)astParser.createAST(null);
-
 		ClassVisitor testVisitor = new ClassVisitor(content, LineIdentifier.paserLineEnd(content));
 		result.accept(testVisitor);
 		return testVisitor;
@@ -54,13 +53,9 @@ public class Metrcis2 {
 		double result = 0.0;
 		//non-empty line count
 		int lineCount = 0;
-		if(lineCount < 1){
-			return -1;
-		}
 		//length sum of all lines
 		int lengthSum = 0;
 		String[] lines = content.split("\n");
-		
 		for (String line : lines) {
 			//remove blank and 3 kinds of lines
 			line = line.trim();
@@ -69,7 +64,9 @@ public class Metrcis2 {
 				lineCount++;
 			}
 		}
-		
+		if(lineCount < 1){
+			return -1;
+		}
 		result = 1.0 * lengthSum / lineCount;
 		return result;
 	}
@@ -83,9 +80,7 @@ public class Metrcis2 {
 		double result = 0.0;
 		//non-empty line count
 		int lineCount = 0;
-		if(lineCount < 1){
-			return -1;
-		}
+
 		//inner space sum of all lines
 		int space = 0;
 		String[] lines = content.split("\n");
@@ -99,6 +94,9 @@ public class Metrcis2 {
 				int length2 = line.length();
 				space+=(length-length2);
 			}
+		}
+		if(lineCount < 1){
+			return -1;
 		}
 		result = 1.0 * space / lineCount;
 		return result;
@@ -125,8 +123,6 @@ public class Metrcis2 {
 				stmt++;
 			}
 		}
-		
-		
 		return result;
 	}
 	
@@ -171,8 +167,93 @@ public class Metrcis2 {
 	 * @param visitor
 	 * @return
 	 */
-	public double operatorPerStmt(ClassVisitor visitor){
-		return -1;
+	public double operatorPerStmt(String content){
+		int operatorCount = 0;
+		content = ' '+content;
+		int length = content.length();
+		
+		boolean quote = false;
+		//this is annotation1
+		boolean annotation1 = false;
+		/*this is annotation2*/
+		boolean annotation2 = false;
+		
+		for (int i = 0; i < length; i++) {
+			if(annotation1){
+				if(content.charAt(i) == '\n'){
+					annotation1 = false;
+				}
+			}
+			if(annotation2){
+				if(content.charAt(i) == '*' && i<length-1 && content.charAt(i+1) == '/'){
+					annotation2 = false;
+				}
+			}	
+			if(!annotation1 && !annotation2){
+				if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '/'){
+					annotation1=true;
+				}
+				else if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '*'){
+					annotation2=true;
+				}
+				else if(content.charAt(i) == '"'){
+					quote = quote?false:true;
+				}
+				else if(!quote){
+
+////////////////////////////////////starting finding operator////////////////////////////////////
+					if(content.charAt(i) == '!'){
+						operatorCount++;
+						if(content.charAt(i+1) == '='){
+							i++;
+						}
+					}else if(content.charAt(i) == '~'){
+						operatorCount++;
+					}else if(content.charAt(i) == '+'){
+						operatorCount++;
+						if(content.charAt(i+1) == '=' || content.charAt(i+1) == '+'){
+							i++;
+						}
+					}else if(content.charAt(i) == '-'){
+						operatorCount++;
+						if(content.charAt(i+1) == '=' || content.charAt(i+1) == '-'){
+							i++;
+						}
+					}else if(content.charAt(i) == '*' || content.charAt(i) == '/' ||content.charAt(i) == '%' ||content.charAt(i) == '=' ||content.charAt(i) == '^'){
+						operatorCount++;
+						if(content.charAt(i+1) == '='){
+							i++;
+						}
+					}else if(content.charAt(i) == '?'){
+						operatorCount++;
+					}else if (content.charAt(i) == '&' || content.charAt(i) == '|') {
+						operatorCount++;
+						if(content.charAt(i+1) == content.charAt(i)){
+							i++;
+						}
+					}else if (content.charAt(i) == '<' || content.charAt(i) == '>'){
+						operatorCount++;
+						while(content.charAt(i+1) == '<' || content.charAt(i+1) == '>' || content.charAt(i+1) == '='){
+							i++;
+						}
+					}
+////////////////////////////////////////////////////////////////////////////////////////////////	
+				}
+			}
+		}
+		int lineCount=0;
+		String[] lines = content.split("\n");
+		for (String line : lines) {
+			//remove blank and 3 kinds of lines
+			line = line.trim();
+			if(!(line.length() < 1 || line.equals("//") || line.equals("{") || line.equals("}"))){
+				lineCount++;
+			}
+		}
+		if(lineCount == 0){
+			return -1;
+		}
+		return 1.0 * operatorCount / lineCount;
 	}
 	
 	/**No.13
@@ -182,9 +263,8 @@ public class Metrcis2 {
 	 */
 	public double varsPerLine(ClassVisitor visitor){
 		int varDeclareLine = 0;
-		
 		List<VarDeclare> varDeclares = visitor.varDeclares;
-		if(varDeclares == null || varDeclares.size() == 0){
+		if(varDeclares == null || varDeclares.size()== 0){
 			return -1;
 		}
 		
@@ -213,7 +293,8 @@ public class Metrcis2 {
 	 * @param visitor
 	 * @return
 	 */
-	public int singleCharVarUse(ClassVisitor visitor){
+	public int singleCharVarUs(ClassVisitor visitor){
+		List<String> methodParas = visitor.methodsParameterNames;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		if(varDeclares == null){
 			return 0;
@@ -222,10 +303,72 @@ public class Metrcis2 {
 			if(varDeclare.var.length() == 1){
 				return 1;
 			}
-		}		
+		}	
+		for (String para : methodParas) {
+			if(para.length()==1){
+				return 1;
+			}
+		}
 		return 0;
 	}
+//	/**No.14
+//	 * anaylse whether use single char var
+//	 * @param content
+//	 * @return
+//	 */	
+//	public int singleCharVarUse(String content){
+//		content = ' '+content;
+//		int length = content.length();
+//		
+//		boolean quote = false;
+//		//this is annotation1
+//		boolean annotation1 = false;
+//		/*this is annotation2*/
+//		boolean annotation2 = false;
+//		
+//		for (int i = 0; i < length; i++) {
+//			if(annotation1){
+//				if(content.charAt(i) == '\n'){
+//					annotation1 = false;
+//				}
+//			}
+//			if(annotation2){
+//				if(content.charAt(i) == '*' && i<length-1 && content.charAt(i+1) == '/'){
+//					annotation2 = false;
+//				}
+//			}	
+//			if(!annotation1 && !annotation2){
+//				if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '/'){
+//					annotation1=true;
+//				}
+//				else if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '*'){
+//					annotation2=true;
+//				}
+//				else if(content.charAt(i) == '"'){
+//					quote = quote?false:true;
+//				}
+//				else if(!quote){
+//					if(singleCharVar(content.charAt(i)) && !varChar(content.charAt(i-1)) &&  !varChar(content.charAt(i+1))){
+//						return 1;
+//					}
+//				}
+//			}
+//		}
+//		return 0;
+//	}
 	
+	public boolean singleCharVar(char a){
+		if((a>='a' && a<='z') || (a>='A' && a<='Z') || a=='_'){
+			return true;
+		}
+		else return false;
+	}
+	
+	public boolean varChar(char a){
+		if((a>='a' && a<='z') || (a>='A' && a<='Z') || (a>='0' && a<='9') || a=='_' || a=='$'){
+			return true;
+		}else return false;
+	}
 	/**No.15
 	 * average length of each declared var
 	 * @param visitor
@@ -234,14 +377,21 @@ public class Metrcis2 {
 	public double averageVarLength(ClassVisitor visitor){
 		int totalLength = 0;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
-		if(varDeclares == null || varDeclares.size() == 0){
+		List<String> methodParas = visitor.methodsParameterNames;
+		
+		if(varDeclares == null || varDeclares.size()+methodParas.size() == 0){
 			return -1;
 		}
 		for (VarDeclare varDeclare : varDeclares) {
 			int length = varDeclare.var.length();
 			totalLength+=length;
 		}
+		for (String para : methodParas) {
+			int length = para.length();
+			totalLength+=length;
+		}
 		
-		return 1.0 * totalLength / varDeclares.size();
+		
+		return 1.0 * totalLength / (varDeclares.size()+methodParas.size());
 	}
 }

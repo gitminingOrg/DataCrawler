@@ -11,6 +11,7 @@ import org.apache.commons.io.EndianUtils;
 import org.bson.Document;
 
 import utility.MongoInfo;
+import utility.MysqlInfo;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,7 +28,9 @@ public class AnalyseDriver {
 		// TODO Auto-generated method stub
 		AnalyseDriver analyseDriver = new AnalyseDriver();
 		List<String> repoStrings =analyseDriver.getRepos();
-		for (int i=0; i<repoStrings.size(); i++) {
+		
+		int start = MysqlInfo.startRepo() - 1;
+		for (int i=start; i<repoStrings.size(); i++) {
 			String projectName = repoStrings.get(i);
 			System.err.println("repo no." + i + " " + projectName + "start");
 			analyseDriver.analyseRepoPull(projectName);
@@ -54,7 +57,9 @@ public class AnalyseDriver {
 	}
 	
 	public void analyseRepoPull(String projectName) throws Exception{
-		System.err.println(new Date());
+		//test-------------------------------------
+		//projectName = "pockethub/PocketHub";
+		//test-------------------------------------
 		PullRequestFetch pullRequestFetch = new PullRequestFetch();
 		ProjectDataFetch projectDataFetch = new ProjectDataFetch();
 
@@ -69,13 +74,17 @@ public class AnalyseDriver {
 		analyseDriver.analyseProjectHistoryData(pulls, project);
 		
 		for (Document document : pulls) {
+//test-------------------------------------
+//			if(document.getInteger("number") != 851){
+//				continue;
+//			}
+//---------------------------------------------
 			analyseDriver.analyseSubmitterCommitsData(document, project);
 			analyseDriver.analyseSubmitterLevelData(document);
 			PullRequest pullRequest = analyseDriver.pr_info(document);
 			analyseDriver.analyseProjectLevelData(pullRequest, project);
 			MongoQuery mongoQuery = new MongoQuery();
 			mongoQuery.insert(pullRequest, DBCollectionInfo.CRAWLER_DB, DBCollectionInfo.RESULT_COLLECTION);
-			System.err.println(new Date());
 		}
 	}
 	
@@ -254,7 +263,7 @@ public class AnalyseDriver {
 			
 			int change_file = jsonObject.get("files").getAsJsonArray().size();			
 			fileChangeTotal+=change_file;
-			if(!jsonObject.get("committer").isJsonNull()){
+			if(!jsonObject.get("committer").isJsonNull() && jsonObject.get("committer").getAsJsonObject().has("login")){
 				String commiter  = jsonObject.get("committer").getAsJsonObject().get("login").getAsString();
 				if(!committers.contains(commiter)){
 					committers.add(commiter);
@@ -358,20 +367,19 @@ public class AnalyseDriver {
 		for (Document commit : pullCommits) {
 			JsonObject commitJson = parser.parse(commit.toJson()).getAsJsonObject();
 			String commit_create = commitJson.get("commit").getAsJsonObject().get("committer").getAsJsonObject().get("date").getAsString().replaceAll("T", " ").replaceAll("Z", "");
-			if(commitJson.get("committer").isJsonNull()){
-				continue;
-			}
-			String commiter = commitJson.get("committer").getAsJsonObject().get("login").getAsString();
-			if(commiter.equals(submitter)){
-				if(early_time.equals("") || early_time.compareTo(commit_create) > 0){
-					early_time = commit_create;
+			if(!commitJson.get("committer").isJsonNull()  && commitJson.get("committer").getAsJsonObject().has("login")){
+				String commiter = commitJson.get("committer").getAsJsonObject().get("login").getAsString();
+				if(commiter.equals(submitter)){
+					if(early_time.equals("") || early_time.compareTo(commit_create) > 0){
+						early_time = commit_create;
+					}
 				}
 			}
+
 		}
 		if(!early_time.equals("")){
 			pullTime = sdf.parse(early_time.replaceAll("T", " ").replaceAll("Z", ""));
 		}
-		System.out.println(pullTime+"11111111111111111111111111111");
 		
 		SubmitterDataFetch submitterDataFetch = new SubmitterDataFetch();
 		List<Document> commits = submitterDataFetch.fetchPullPersonalCommits(fn, userName);
