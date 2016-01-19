@@ -9,21 +9,21 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metric1 {
-	public static void main(String[] args) throws IOException {
-		Metric1 analysis = new Metric1();
-		ClassVisitor visitor = analysis.ASTsearch();
-		FileStringReader fileStringReader = new FileStringReader();
-		String content = null;
-		try {
-			content = fileStringReader.getFileContent("StructureParser.java");
-			// content = fileStringReader.getFileContent("wc");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		double result = analysis.bracketUse(visitor);
-		System.out.println(result);
-	}
+//	public static void main(String[] args) throws IOException {
+//		Metric1 analysis = new Metric1();
+//		ClassVisitor visitor = analysis.ASTsearch();
+//		FileStringReader fileStringReader = new FileStringReader();
+//		String content = null;
+//		try {
+//			content = fileStringReader.getFileContent("StructureParser.java");
+//			// content = fileStringReader.getFileContent("wc");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		double result = analysis.bracketUse(visitor);
+//		System.out.println(result);
+//	}
 
 	/**
 	 * ast search
@@ -282,7 +282,7 @@ public class Metric1 {
 		List<SpecialStmt> specialStmts = vistor.specialStmts;
 		for (Assign ass : assigns) {
 			String expre = ass.getExpression();
-			if (expre.trim().length() >= 20) {
+			if (expre.trim().length() >= 80) {
 				complexCount++;
 				if ((expre.indexOf("\n") > 0)
 						&& (expre.indexOf("\n") < (expre.length() - 1))) {
@@ -292,7 +292,7 @@ public class Metric1 {
 		}
 		for (SpecialStmt special : specialStmts) {
 			String expre = special.getStmt();
-			if (expre.trim().length() >= 20) {
+			if (expre.trim().length() >= 80) {
 				complexCount++;
 				if (expre.indexOf("\n") < (expre.length() - 1)) {
 					cutCount++;
