@@ -12,9 +12,24 @@ public class Metrics2 {
 	
 	public static void main(String[] args) throws Exception{
 		Metrics2 metrcis2 = new Metrics2();
-		String content = getContent("StructureParser.java");
-		ClassVisitor visitor = ASTsearch(content);
-		
+		String content = null;
+		ClassVisitor visitor = null;
+		if(args.length == 0){
+			content =  getContent("StructureParser.java");
+			visitor = ASTsearch(content);
+		}
+		else if(args.length != 2){
+			System.out.println("r u ****ing kidding me?");
+		}
+		else{
+			if(args[0].equals("java")){
+				content =  getContent(args[1]);
+				visitor = ASTsearch(content);
+			}else{
+				content =  getContent(args[1]);
+				visitor = ASTsearchBlock(content);
+			}
+		}		
 		System.out.println("-------------------------------");
 		System.out.println(metrcis2.no8singleLen(content));
 		System.out.println(metrcis2.no9spaceNum(content));
