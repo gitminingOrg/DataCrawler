@@ -9,10 +9,10 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-public class Metrcis2 {
+public class Metrics2 {
 	
 	public static void main(String[] args){
-		Metrcis2 metrcis2 = new Metrcis2();
+		Metrics2 metrcis2 = new Metrics2();
 		ClassVisitor visitor = ASTsearch();
 		//System.err.println(metrcis2.varsPerLine(visitor));
 		
