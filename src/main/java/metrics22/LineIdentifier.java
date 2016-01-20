@@ -10,7 +10,6 @@ public class LineIdentifier {
 		//check if chatAt i is \n
 		for(int i=0; i<length; i++){
 			if(content.charAt(i)=='\n'){
-				System.out.println(i);
 				lines.add(i);
 			}
 		}

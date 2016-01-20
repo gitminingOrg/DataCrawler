@@ -87,7 +87,6 @@ public class ClassVisitor extends ASTVisitor {
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration singleVariableDeclaration : parameters) {
 			String name = singleVariableDeclaration.getName().toString();
-			System.out.println(name + "method para");
 			methodsParameterNames.add(name);
 		}
 		Block block = node.getBody();
@@ -109,7 +108,6 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(Assignment node) {
 		// TODO Auto-generated method stub
-		System.out.println(node.toString());
 		Expression expressionLeft = node.getLeftHandSide();
 		Expression expressionRight = node.getRightHandSide();
 		Assign assign = new Assign(node.getStartPosition(), node.getLength(), node.toString());
@@ -120,14 +118,12 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(MethodInvocation node) {
 		// TODO Auto-generated method stub
-		System.out.println(node.toString());
 		super.endVisit(node);
 	}
 	
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
 		// TODO Auto-generated method stub
-		System.out.println(node.toString());
 		List<VariableDeclarationFragment >frags = node.fragments();
 		for (VariableDeclarationFragment frg : frags) {
             VarDeclare varDeclare = new VarDeclare(frg.getName().getIdentifier(), node.getStartPosition(), node.getLength(), node.toString());
@@ -251,7 +247,6 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodRefParameter node) {
 		// TODO Auto-generated method stub
-		System.out.println(node.getName() + "ref");
 		return super.visit(node);
 	}
 

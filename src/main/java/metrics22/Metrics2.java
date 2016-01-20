@@ -3,35 +3,47 @@ package metrics22;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.plaf.basic.BasicScrollPaneUI.VSBChangeListener;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metrics2 {
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws Exception{
 		Metrics2 metrcis2 = new Metrics2();
-		ClassVisitor visitor = ASTsearch();
-		//System.err.println(metrcis2.varsPerLine(visitor));
+		String content = getContent("StructureParser.java");
+		ClassVisitor visitor = ASTsearch(content);
 		
+		System.out.println("-------------------------------");
+		System.out.println(metrcis2.no8singleLen(content));
+		System.out.println(metrcis2.no9spaceNum(content));
+		System.out.println(metrcis2.no10stmtsPerLine(content, visitor));
+		System.out.println(metrcis2.no11assignSpaceUse(visitor,content));
+		System.out.println(metrcis2.no12operatorPerStmt(content));
+		System.out.println(metrcis2.no13varsPerLine(visitor));
+		System.out.println(metrcis2.no14singleCharVarUs(visitor));
+		System.out.println(metrcis2.no15averageVarLength(visitor));
 	}
 	
-	/**
-	 * ast search
-	 * @return
-	 */
-	public static ClassVisitor ASTsearch(){
+	
+	public static String getContent(String file){
 		FileStringReader fileStringReader = new FileStringReader();
 		String content = null;
 		try {
-			content = fileStringReader.getFileContent("StructureParser.java");
+			content = fileStringReader.getFileContent(file);
 			// content = fileStringReader.getFileContent("wc");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return content;
+	}
+	/**
+	 * ast search
+	 * @return
+	 */
+	public static ClassVisitor ASTsearch(String content){
 		//
 		ASTParser astParser = ASTParser.newParser(AST.JLS3);
 		astParser.setSource(new String(content).toCharArray());
@@ -44,12 +56,27 @@ public class Metrics2 {
 		return testVisitor;
 	}
 	
+	/**
+	 * ast search
+	 * @return
+	 */
+	public static ClassVisitor ASTsearchBlock(String content){
+		//
+		ASTParser astParser = ASTParser.newParser(AST.JLS3);
+		astParser.setSource(new String(content).toCharArray());
+		astParser.setKind(ASTParser.K_STATEMENTS);
+		Block result = (Block) astParser.createAST(null);
+		ClassVisitor testVisitor = new ClassVisitor(content, LineIdentifier.paserLineEnd(content));
+		result.accept(testVisitor);
+		return testVisitor;
+	}
+	
 	/**No. 8
 	 * calculate average length of each non-empty line
 	 * @param content the whole text
 	 * @return average length
 	 */
-	public double singleLen(String content){
+	public double no8singleLen(String content){
 		double result = 0.0;
 		//non-empty line count
 		int lineCount = 0;
@@ -76,15 +103,13 @@ public class Metrics2 {
 	 * @param contentthe whole text
 	 * @return average space count
 	 */
-	public double spaceNum(String content){
+	public double no9spaceNum(String content){
 		double result = 0.0;
-		//non-empty line count
-		int lineCount = 0;
-
 		//inner space sum of all lines
 		int space = 0;
 		String[] lines = content.split("\n");
-		
+		//non-empty line count
+		int lineCount = lines.length;
 		for (String line : lines) {
 			//remove blank and 3 kinds of lines
 			line = line.trim();
@@ -107,7 +132,7 @@ public class Metrics2 {
 	 * @param content
 	 * @return average statements count
 	 */
-	public double stmtsPerLine(String content, ClassVisitor visitor){
+	public double no10stmtsPerLine(String content, ClassVisitor visitor){
 		double result = 0.0;
 		int stmt = 0;
 		
@@ -122,6 +147,7 @@ public class Metrics2 {
 			if(!quote && content.charAt(index) == ';'){
 				stmt++;
 			}
+			index++;
 		}
 		return result;
 	}
@@ -131,7 +157,7 @@ public class Metrics2 {
 	 * @param visitor ASTVisitor
 	 * @return
 	 */
-	public double assignSpaceUse(ClassVisitor visitor){
+	public double no11assignSpaceUse(ClassVisitor visitor,String content){
 		List<Assign> assigns = visitor.assigns;
 		int totalAssign = 0;
 		int spaceAssign = 0;
@@ -139,7 +165,7 @@ public class Metrics2 {
 			//contains '=' , then need to count
 			if(assign.getExpression().contains("=")){
 				totalAssign++;
-				String expression = assign.getExpression();
+				String expression =  content.substring(assign.start, assign.start+assign.length);
 				int equal = expression.indexOf('=');
 				
 				char former = expression.charAt(equal-1);
@@ -167,7 +193,7 @@ public class Metrics2 {
 	 * @param visitor
 	 * @return
 	 */
-	public double operatorPerStmt(String content){
+	public double no12operatorPerStmt(String content){
 		int operatorCount = 0;
 		content = ' '+content;
 		int length = content.length();
@@ -261,7 +287,7 @@ public class Metrics2 {
 	 * @param visitor Whole File Parse
 	 * @return
 	 */
-	public double varsPerLine(ClassVisitor visitor){
+	public double no13varsPerLine(ClassVisitor visitor){
 		int varDeclareLine = 0;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		if(varDeclares == null || varDeclares.size()== 0){
@@ -293,7 +319,7 @@ public class Metrics2 {
 	 * @param visitor
 	 * @return
 	 */
-	public int singleCharVarUs(ClassVisitor visitor){
+	public int no14singleCharVarUs(ClassVisitor visitor){
 		List<String> methodParas = visitor.methodsParameterNames;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		if(varDeclares == null){
@@ -374,7 +400,7 @@ public class Metrics2 {
 	 * @param visitor
 	 * @return
 	 */
-	public double averageVarLength(ClassVisitor visitor){
+	public double no15averageVarLength(ClassVisitor visitor){
 		int totalLength = 0;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		List<String> methodParas = visitor.methodsParameterNames;
