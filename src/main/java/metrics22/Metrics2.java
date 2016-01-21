@@ -11,34 +11,120 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class Metrics2 {
 	
 	public static void main(String[] args) throws Exception{
+		args = new String[]{"other","wc"};
 		Metrics2 metrcis2 = new Metrics2();
 		String content = null;
 		ClassVisitor visitor = null;
-		if(args.length == 0){
-			content =  getContent("StructureParser.java");
-			visitor = ASTsearch(content);
-		}
-		else if(args.length != 2){
+		if(args.length != 2){
 			System.out.println("r u ****ing kidding me?");
 		}
 		else{
+			int no81 =0,no82 =0,no91 =0,no92 =0,no111 =0,no112 =0,no121 =0,no122 =0,no131 =0,no132 =0,no14 = 0,no151 =0,no152 =0;
 			if(args[0].equals("java")){
-				content =  getContent(args[1]);
-				visitor = ASTsearch(content);
+				List<String> files = FileNameReader.getFileNames(args[1]);
+				for (String file : files) {
+					content = getContent(file);
+					visitor = ASTsearch(content);
+					int[] no8 = metrcis2.no8singleLen(content);
+					no81+=no8[0];
+					no82+=no8[1];
+					
+					int[] no9 = metrcis2.no9spaceNum(content);
+					no91+=no9[0];
+					no92+=no9[1];
+					
+					int[] no11 = metrcis2.no11assignSpaceUse(visitor,content);
+					no111+=no11[0];
+					no112+=no11[1];
+					
+					int[] no12 = metrcis2.no12operatorPerStmt(content);
+					no121+=no12[0];
+					no122+=no12[1];
+					
+					int[] no13 = metrcis2.no13varsPerLine(visitor);
+					no131+=no13[0];
+					no132+=no13[1];
+					
+					no14 = no14==1?1:metrcis2.no14singleCharVarUs(visitor);
+					
+					int[] no15 = metrcis2.no15averageVarLength(visitor);
+					no151+=no15[0];
+					no152+=no15[1];
+				}
+				
 			}else{
-				content =  getContent(args[1]);
-				visitor = ASTsearchBlock(content);
+				List<String> files = FileNameReader.getFileNames(args[1]);
+				for (String file : files) {
+					content = getContent(file);
+					visitor = ASTsearchBlock(content);
+					int[] no8 = metrcis2.no8singleLen(content);
+					no81+=no8[0];
+					no82+=no8[1];
+					
+					int[] no9 = metrcis2.no9spaceNum(content);
+					no91+=no9[0];
+					no92+=no9[1];
+					
+					int[] no11 = metrcis2.no11assignSpaceUse(visitor,content);
+					no111+=no11[0];
+					no112+=no11[1];
+					
+					int[] no12 = metrcis2.no12operatorPerStmt(content);
+					no121+=no12[0];
+					no122+=no12[1];
+					
+					int[] no13 = metrcis2.no13varsPerLine(visitor);
+					no131+=no13[0];
+					no132+=no13[1];
+					
+					no14 = no14==1?1:metrcis2.no14singleCharVarUs(visitor);
+					
+					int[] no15 = metrcis2.no15averageVarLength(visitor);
+					no151+=no15[0];
+					no152+=no15[1];
+				}
+				
 			}
+			
+			if(no82 == 0){
+				System.out.println("no.8\t-1");
+			}else{
+				System.out.println("no.8\t"+(1.0*no81/no82));
+			}
+			
+			if(no92 == 0){
+				System.out.println("no.9\t-1");
+			}else{
+				System.out.println("no.9\t"+(1.0*no91/no92));
+			}
+			
+			if(no112 == 0){
+				System.out.println("no.11\t-1");
+			}else{
+				System.out.println("no.11\t"+(1.0*no111/no112));
+			}
+			
+			if(no122 == 0){
+				System.out.println("no.12\t-1");
+			}else{
+				System.out.println("no.12\t"+(1.0*no121/no122));
+			}
+			
+			if(no132 == 0){
+				System.out.println("no.13\t-1");
+			}else{
+				System.out.println("no.13\t"+(1.0*no131/no132));
+			}
+			System.out.println("no.14\t"+no14);
+			if(no152 == 0){
+				System.out.println("no.15\t-1");
+			}else{
+				System.out.println("no.15\t"+(1.0*no151/no152));
+			}
+			
 		}		
-		System.out.println("-------------------------------");
-		System.out.println(metrcis2.no8singleLen(content));
-		System.out.println(metrcis2.no9spaceNum(content));
-		System.out.println(metrcis2.no10stmtsPerLine(content, visitor));
-		System.out.println(metrcis2.no11assignSpaceUse(visitor,content));
-		System.out.println(metrcis2.no12operatorPerStmt(content));
-		System.out.println(metrcis2.no13varsPerLine(visitor));
-		System.out.println(metrcis2.no14singleCharVarUs(visitor));
-		System.out.println(metrcis2.no15averageVarLength(visitor));
+		
+
 	}
 	
 	
@@ -76,7 +162,6 @@ public class Metrics2 {
 	 * @return
 	 */
 	public static ClassVisitor ASTsearchBlock(String content){
-		//
 		ASTParser astParser = ASTParser.newParser(AST.JLS3);
 		astParser.setSource(new String(content).toCharArray());
 		astParser.setKind(ASTParser.K_STATEMENTS);
@@ -91,7 +176,7 @@ public class Metrics2 {
 	 * @param content the whole text
 	 * @return average length
 	 */
-	public double no8singleLen(String content){
+	public int[] no8singleLen(String content){
 		double result = 0.0;
 		//non-empty line count
 		int lineCount = 0;
@@ -106,11 +191,8 @@ public class Metrics2 {
 				lineCount++;
 			}
 		}
-		if(lineCount < 1){
-			return -1;
-		}
-		result = 1.0 * lengthSum / lineCount;
-		return result;
+		
+		return new int[]{lengthSum,lineCount};
 	}
 	
 	/**No. 9
@@ -118,7 +200,7 @@ public class Metrics2 {
 	 * @param contentthe whole text
 	 * @return average space count
 	 */
-	public double no9spaceNum(String content){
+	public int[] no9spaceNum(String content){
 		double result = 0.0;
 		//inner space sum of all lines
 		int space = 0;
@@ -135,11 +217,7 @@ public class Metrics2 {
 				space+=(length-length2);
 			}
 		}
-		if(lineCount < 1){
-			return -1;
-		}
-		result = 1.0 * space / lineCount;
-		return result;
+		return new int[]{space,lineCount};
 	}
 	
 	/**No. 10
@@ -147,24 +225,8 @@ public class Metrics2 {
 	 * @param content
 	 * @return average statements count
 	 */
-	public double no10stmtsPerLine(String content, ClassVisitor visitor){
-		double result = 0.0;
-		int stmt = 0;
-		
-		int index = 0;
-		boolean quote = false;
-		
-		//fetch normal stmt ended with ';'
-		while(index < content.length()){
-			if(content.charAt(index) == '"'){
-				quote = quote?false:true;
-			}
-			if(!quote && content.charAt(index) == ';'){
-				stmt++;
-			}
-			index++;
-		}
-		return result;
+	public int no10stmtsPerLine(String content, ClassVisitor visitor){
+		return -1;
 	}
 	
 	/** No.11 
@@ -172,7 +234,7 @@ public class Metrics2 {
 	 * @param visitor ASTVisitor
 	 * @return
 	 */
-	public double no11assignSpaceUse(ClassVisitor visitor,String content){
+	public int[] no11assignSpaceUse(ClassVisitor visitor,String content){
 		List<Assign> assigns = visitor.assigns;
 		int totalAssign = 0;
 		int spaceAssign = 0;
@@ -200,7 +262,7 @@ public class Metrics2 {
 		if(totalAssign > 0){
 			result = 1.0 * spaceAssign / totalAssign;
 		}
-		return result;
+		return new int[]{spaceAssign,totalAssign};
 	}
 	
 	/**No.12
@@ -208,7 +270,7 @@ public class Metrics2 {
 	 * @param visitor
 	 * @return
 	 */
-	public double no12operatorPerStmt(String content){
+	public int[] no12operatorPerStmt(String content){
 		int operatorCount = 0;
 		content = ' '+content;
 		int length = content.length();
@@ -291,10 +353,7 @@ public class Metrics2 {
 				lineCount++;
 			}
 		}
-		if(lineCount == 0){
-			return -1;
-		}
-		return 1.0 * operatorCount / lineCount;
+		return new int[]{operatorCount,lineCount};
 	}
 	
 	/**No.13
@@ -302,11 +361,11 @@ public class Metrics2 {
 	 * @param visitor Whole File Parse
 	 * @return
 	 */
-	public double no13varsPerLine(ClassVisitor visitor){
+	public int[] no13varsPerLine(ClassVisitor visitor){
 		int varDeclareLine = 0;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		if(varDeclares == null || varDeclares.size()== 0){
-			return -1;
+			return new int[]{0,0};
 		}
 		
 		List<Integer> lineEnd = visitor.lineEnd;
@@ -326,7 +385,7 @@ public class Metrics2 {
 				}
 			}
 		}
-		return 1.0 * varDeclares.size() / varDeclareLine;
+		return  new int[]{varDeclares.size(),varDeclareLine};
 	}
 	
 	/**No.14
@@ -415,13 +474,13 @@ public class Metrics2 {
 	 * @param visitor
 	 * @return
 	 */
-	public double no15averageVarLength(ClassVisitor visitor){
+	public int[] no15averageVarLength(ClassVisitor visitor){
 		int totalLength = 0;
 		List<VarDeclare> varDeclares = visitor.varDeclares;
 		List<String> methodParas = visitor.methodsParameterNames;
 		
 		if(varDeclares == null || varDeclares.size()+methodParas.size() == 0){
-			return -1;
+			return new int[]{0,0};
 		}
 		for (VarDeclare varDeclare : varDeclares) {
 			int length = varDeclare.var.length();
@@ -433,6 +492,6 @@ public class Metrics2 {
 		}
 		
 		
-		return 1.0 * totalLength / (varDeclares.size()+methodParas.size());
+		return new int[]{totalLength,(varDeclares.size()+methodParas.size())};
 	}
 }
