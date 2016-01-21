@@ -33,7 +33,7 @@ public class Metrics2 {
 					no91+=no9[0];
 					no92+=no9[1];
 					
-					int[] no11 = metrcis2.no11assignSpaceUse(visitor,content);
+					int[] no11 = metrcis2.no11assignSpaceUse(visitor);
 					no111+=no11[0];
 					no112+=no11[1];
 					
@@ -50,13 +50,13 @@ public class Metrics2 {
 					int[] no15 = metrcis2.no15averageVarLength(visitor);
 					no151+=no15[0];
 					no152+=no15[1];
-				}
-				
+				}	
 			}else{
 				List<String> files = FileNameReader.getFileNames(args[1]);
 				for (String file : files) {
 					content = getContent(file);
-					visitor = ASTsearchBlock(content);
+					String astContent = new FileStringReader().removeUselessStmt(content);
+					visitor = ASTsearch(astContent);
 					int[] no8 = metrcis2.no8singleLen(content);
 					no81+=no8[0];
 					no82+=no8[1];
@@ -65,7 +65,7 @@ public class Metrics2 {
 					no91+=no9[0];
 					no92+=no9[1];
 					
-					int[] no11 = metrcis2.no11assignSpaceUse(visitor,content);
+					int[] no11 = metrcis2.no11assignSpaceUse(visitor);
 					no111+=no11[0];
 					no112+=no11[1];
 					
@@ -87,39 +87,39 @@ public class Metrics2 {
 			}
 			
 			if(no82 == 0){
-				System.out.println("no.8\t-1");
+				System.out.print("#,");
 			}else{
-				System.out.println("no.8\t"+(1.0*no81/no82));
+				System.out.print((1.0*no81/no82)+",");
 			}
 			
 			if(no92 == 0){
-				System.out.println("no.9\t-1");
+				System.out.print("#,");
 			}else{
-				System.out.println("no.9\t"+(1.0*no91/no92));
+				System.out.print((1.0*no91/no92)+",");
 			}
 			
 			if(no112 == 0){
-				System.out.println("no.11\t-1");
+				System.out.print("#,");
 			}else{
-				System.out.println("no.11\t"+(1.0*no111/no112));
+				System.out.print((1.0*no111/no112)+",");
 			}
 			
 			if(no122 == 0){
-				System.out.println("no.12\t-1");
+				System.out.print("#,");
 			}else{
-				System.out.println("no.12\t"+(1.0*no121/no122));
+				System.out.print((1.0*no121/no122)+",");
 			}
 			
 			if(no132 == 0){
-				System.out.println("no.13\t-1");
+				System.out.println("#,");
 			}else{
-				System.out.println("no.13\t"+(1.0*no131/no132));
+				System.out.print((1.0*no131/no132)+",");
 			}
-			System.out.println("no.14\t"+no14);
+			System.out.print(no14+",");
 			if(no152 == 0){
-				System.out.println("no.15\t-1");
+				System.out.print("#,");
 			}else{
-				System.out.println("no.15\t"+(1.0*no151/no152));
+				System.out.print((1.0*no151/no152)+",");
 			}
 			
 		}		
@@ -234,7 +234,7 @@ public class Metrics2 {
 	 * @param visitor ASTVisitor
 	 * @return
 	 */
-	public int[] no11assignSpaceUse(ClassVisitor visitor,String content){
+	public int[] no11assignSpaceUse(ClassVisitor visitor){
 		List<Assign> assigns = visitor.assigns;
 		int totalAssign = 0;
 		int spaceAssign = 0;
@@ -242,7 +242,7 @@ public class Metrics2 {
 			//contains '=' , then need to count
 			if(assign.getExpression().contains("=")){
 				totalAssign++;
-				String expression =  content.substring(assign.start, assign.start+assign.length);
+				String expression =  visitor.content.substring(assign.start, assign.start+assign.length);
 				int equal = expression.indexOf('=');
 				
 				char former = expression.charAt(equal-1);
@@ -411,51 +411,51 @@ public class Metrics2 {
 		}
 		return 0;
 	}
-//	/**No.14
-//	 * anaylse whether use single char var
-//	 * @param content
-//	 * @return
-//	 */	
-//	public int singleCharVarUse(String content){
-//		content = ' '+content;
-//		int length = content.length();
-//		
-//		boolean quote = false;
-//		//this is annotation1
-//		boolean annotation1 = false;
-//		/*this is annotation2*/
-//		boolean annotation2 = false;
-//		
-//		for (int i = 0; i < length; i++) {
-//			if(annotation1){
-//				if(content.charAt(i) == '\n'){
-//					annotation1 = false;
-//				}
-//			}
-//			if(annotation2){
-//				if(content.charAt(i) == '*' && i<length-1 && content.charAt(i+1) == '/'){
-//					annotation2 = false;
-//				}
-//			}	
-//			if(!annotation1 && !annotation2){
-//				if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '/'){
-//					annotation1=true;
-//				}
-//				else if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '*'){
-//					annotation2=true;
-//				}
-//				else if(content.charAt(i) == '"'){
-//					quote = quote?false:true;
-//				}
-//				else if(!quote){
-//					if(singleCharVar(content.charAt(i)) && !varChar(content.charAt(i-1)) &&  !varChar(content.charAt(i+1))){
-//						return 1;
-//					}
-//				}
-//			}
-//		}
-//		return 0;
-//	}
+	/**No.14
+	 * anaylse whether use single char var
+	 * @param content
+	 * @return
+	 */	
+	public int no14singleCharVarUse(String content){
+		content = ' '+content;
+		int length = content.length();
+		
+		boolean quote = false;
+		//this is annotation1
+		boolean annotation1 = false;
+		/*this is annotation2*/
+		boolean annotation2 = false;
+		
+		for (int i = 0; i < length; i++) {
+			if(annotation1){
+				if(content.charAt(i) == '\n'){
+					annotation1 = false;
+				}
+			}
+			if(annotation2){
+				if(content.charAt(i) == '*' && i<length-1 && content.charAt(i+1) == '/'){
+					annotation2 = false;
+				}
+			}	
+			if(!annotation1 && !annotation2){
+				if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '/'){
+					annotation1=true;
+				}
+				else if(!quote && content.charAt(i)=='/'&& i<length-1 && content.charAt(i+1) == '*'){
+					annotation2=true;
+				}
+				else if(content.charAt(i) == '"'){
+					quote = quote?false:true;
+				}
+				else if(!quote){
+					if(singleCharVar(content.charAt(i)) && !varChar(content.charAt(i-1)) &&  !varChar(content.charAt(i+1))){
+						return 1;
+					}
+				}
+			}
+		}
+		return 0;
+	}
 	
 	public boolean singleCharVar(char a){
 		if((a>='a' && a<='z') || (a>='A' && a<='Z') || a=='_'){

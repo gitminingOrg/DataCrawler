@@ -124,7 +124,6 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
 		// TODO Auto-generated method stub
-		System.out.println("aaaaa");
 		List<VariableDeclarationFragment >frags = node.fragments();
 		for (VariableDeclarationFragment frg : frags) {
             VarDeclare varDeclare = new VarDeclare(frg.getName().getIdentifier(), node.getStartPosition(), node.getLength(), node.toString());
