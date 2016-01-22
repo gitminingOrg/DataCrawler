@@ -34,6 +34,7 @@ public class RepoFilter1 {
 	int closedissue = 0;
 	int closedpull = 0;
 	int contributor = 0;
+	int methodEnd = 0;
 
 	public static void main(String[] args) {
 		RepoFilter1 repoFilter1 = new RepoFilter1();
@@ -60,7 +61,7 @@ public class RepoFilter1 {
 
 	public void filter() {
 		System.out.println("Start filter repositories-----------------------");
-		while (id < 5000000) {
+		while (id < 13000000) {
 			try {
 				urlConnection = GetURLConnection.getUrlConnection(repoURL + id);
 				reader = new BufferedReader(new InputStreamReader(
@@ -100,22 +101,32 @@ public class RepoFilter1 {
 							}
 						}
 						
-						FileWriter fileWriter = new FileWriter("IDLog1.txt");
-						fileWriter.write(repo.get("id").toString());
-						fileWriter.flush();
-						fileWriter.close();
+						if(methodEnd == 0){
+							FileWriter fileWriter = new FileWriter("IDLog1.txt");
+							fileWriter.write(repo.get("id").toString());
+							fileWriter.flush();
+							fileWriter.close();
+						}else{
+							i = jsonArray.size();
+						}
+						
 					}
-					DBObject object = (BasicDBObject) JSON.parse(jsonArray.get(
-							jsonArray.size() - 1).toString());
-					id = Integer.parseInt(object.get("id").toString());
-					System.out
-							.println("***********************************one page over,now id = "
-									+ id);
+					
+					if(methodEnd == 0){
+						DBObject object = (BasicDBObject) JSON.parse(jsonArray.get(
+								jsonArray.size() - 1).toString());
+						id = Integer.parseInt(object.get("id").toString());
+						System.out
+								.println("***********************************one page over,now id = "
+										+ id);
+					}else{
+						id = 123456789;
+					}
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();
-				System.exit(0);
+				id = 123456789;
 			}
 		}
 	}
@@ -141,7 +152,7 @@ public class RepoFilter1 {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -167,7 +178,7 @@ public class RepoFilter1 {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -248,13 +259,14 @@ public class RepoFilter1 {
 				}
 
 				if (result
-						.contains("<span class=\"octicon octicon-check \"></span>")) {
+						.contains("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")) {
 					String str = result
-							.split("<span class=\"octicon octicon-check \"></span>")[1]
+							.split("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")[1]
 							.split(" Closed")[0].replace(" ", "");
 					if (str.contains(",")) {
 						str = str.replace(",", "");
 					}
+					System.out.println(str);
 					if (Integer.parseInt(str) >= 20) {
 						closedissue = Integer.parseInt(str);
 						return true;
@@ -270,7 +282,7 @@ public class RepoFilter1 {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -285,13 +297,14 @@ public class RepoFilter1 {
 				while ((response = reader.readLine()) != null) {
 					result = result + response;
 				}
-				if (result.contains("<span class=\"octicon octicon-check \"></span>")) {
+				if (result.contains("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")) {
 					String str = result
-							.split("<span class=\"octicon octicon-check \"></span>")[1]
+							.split("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")[1]
 							.split(" Closed")[0].replace(" ", "");
 					if (str.contains(",")) {
 						str = str.replace(",", "");
 					}
+					System.out.println(str);
 					if (Integer.parseInt(str) >= 200) {
 						closedpull = Integer.parseInt(str);
 						return true;
@@ -307,7 +320,7 @@ public class RepoFilter1 {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -329,6 +342,7 @@ public class RepoFilter1 {
 						String str = result
 								.split("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\">")[1]
 								.split("</div>")[0].split("aria-label=\"Java ")[1].split("%\" ")[0];
+						System.out.println(Double.parseDouble(str));
 						if (Double.parseDouble(str) >= 50.0) {
 							javaPercent = Double.parseDouble(str);
 							return true;
@@ -347,7 +361,7 @@ public class RepoFilter1 {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}

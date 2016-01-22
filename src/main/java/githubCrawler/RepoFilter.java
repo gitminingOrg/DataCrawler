@@ -34,6 +34,7 @@ public class RepoFilter {
 	int closedissue = 0;
 	int closedpull = 0;
 	int contributor = 0;
+	int methodEnd = 0;
 
 	public static void main(String[] args) {
 		RepoFilter repoFilter = new RepoFilter();
@@ -60,7 +61,7 @@ public class RepoFilter {
 
 	public void filter() {
 		System.out.println("Start filter repositories-----------------------");
-		while (id < 4000000) {
+		while (id < 16000000) {
 			try {
 				urlConnection = GetURLConnection.getUrlConnection(repoURL + id);
 				reader = new BufferedReader(new InputStreamReader(
@@ -100,24 +101,33 @@ public class RepoFilter {
 							}
 						}
 						
-						if(!object.get("full_name").toString().equals("behnam/openheatmap")){
-							FileWriter fileWriter = new FileWriter("IDLog.txt");
-							fileWriter.write(repo.get("id").toString());
-							fileWriter.flush();
-							fileWriter.close();
+						if(methodEnd == 0){
+							if(!object.get("full_name").toString().equals("behnam/openheatmap")){
+								FileWriter fileWriter = new FileWriter("IDLog.txt");
+								fileWriter.write(repo.get("id").toString());
+								fileWriter.flush();
+								fileWriter.close();
+							}
+						}else{
+							i = jsonArray.size();
 						}
 					}
-					DBObject object = (BasicDBObject) JSON.parse(jsonArray.get(
-							jsonArray.size() - 1).toString());
-					id = Integer.parseInt(object.get("id").toString());
-					System.out
-							.println("***********************************one page over,now id = "
-									+ id);
+					
+					if(methodEnd == 0){
+						DBObject object = (BasicDBObject) JSON.parse(jsonArray.get(
+								jsonArray.size() - 1).toString());
+						id = Integer.parseInt(object.get("id").toString());
+						System.out
+								.println("***********************************one page over,now id = "
+										+ id);
+					}else{
+						id = 123456789;
+					}
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();
-				System.exit(0);
+				id = 123456789;
 			}
 		}
 	}
@@ -135,6 +145,7 @@ public class RepoFilter {
 				if (repo.get("fork").equals(false)) {
 					return true;
 				} else {
+					System.out.println("fork");
 					return false;
 				}
 			} else {
@@ -143,7 +154,7 @@ public class RepoFilter {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -169,7 +180,7 @@ public class RepoFilter {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -250,15 +261,17 @@ public class RepoFilter {
 				}
 
 				if (result
-						.contains("<span class=\"octicon octicon-check \"></span>")) {
+						.contains("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")) {
 					String str = result
-							.split("<span class=\"octicon octicon-check \"></span>")[1]
+							.split("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")[1]
 							.split(" Closed")[0].replace(" ", "");
 					if (str.contains(",")) {
 						str = str.replace(",", "");
 					}
+					System.out.println(str);
 					if (Integer.parseInt(str) >= 20) {
 						closedissue = Integer.parseInt(str);
+						System.out.println(closedissue);
 						return true;
 					} else {
 						return false;
@@ -272,7 +285,7 @@ public class RepoFilter {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -287,15 +300,17 @@ public class RepoFilter {
 				while ((response = reader.readLine()) != null) {
 					result = result + response;
 				}
-				if (result.contains("<span class=\"octicon octicon-check \"></span>")) {
+				if (result.contains("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")) {
 					String str = result
-							.split("<span class=\"octicon octicon-check \"></span>")[1]
+							.split("<span aria-hidden=\"true\" class=\"octicon octicon-check\"></span>")[1]
 							.split(" Closed")[0].replace(" ", "");
 					if (str.contains(",")) {
 						str = str.replace(",", "");
 					}
+					System.out.println(str);
 					if (Integer.parseInt(str) >= 200) {
 						closedpull = Integer.parseInt(str);
+						System.out.println(closedpull);
 						return true;
 					} else {
 						return false;
@@ -309,7 +324,7 @@ public class RepoFilter {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
@@ -331,6 +346,7 @@ public class RepoFilter {
 						String str = result
 								.split("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\">")[1]
 								.split("</div>")[0].split("aria-label=\"Java ")[1].split("%\" ")[0];
+						System.out.println(Double.parseDouble(str));
 						if (Double.parseDouble(str) >= 50.0) {
 							javaPercent = Double.parseDouble(str);
 							return true;
@@ -349,7 +365,7 @@ public class RepoFilter {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.exit(0);
+			methodEnd = 1;
 			return false;
 		}
 	}
