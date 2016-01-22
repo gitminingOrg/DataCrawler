@@ -17,4 +17,11 @@ public class FileStringReader {
 		//push into content
 		return content;
 	}
+	
+	public String removeUselessStmt(String content) throws IOException{
+			String result = content.replaceAll("\\}", "");
+			result = result.replaceAll("\\{", "\\{\\}");
+			result = "public class ASTRANGE121NAME{\n" +result+"\n}";
+			return result;
+	}
 }
