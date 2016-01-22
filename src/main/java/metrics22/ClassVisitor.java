@@ -40,9 +40,11 @@ public class ClassVisitor extends ASTVisitor {
 		this.lineEnd = lineEnd;
 	}
 
-	String className;
+	List<String> className = new ArrayList<String>();
+	List<Integer> classStart = new ArrayList<Integer>();
 	List<String> classFieldNames = new ArrayList<String>();
 	List<String> methodsNames = new ArrayList<String>();
+	List<Integer> methodsStart = new ArrayList<Integer>();
 	List<Assign> assigns = new ArrayList<Assign>();
 	List<VarDeclare> varDeclares = new ArrayList<VarDeclare>();
 	List<SpecialStmt> specialStmts = new ArrayList<SpecialStmt>();
@@ -56,9 +58,9 @@ public class ClassVisitor extends ASTVisitor {
 	 */
 	public boolean visit(TypeDeclaration node) {
 		// TODO Auto-generated method stub
-		node.getStartPosition();
+		classStart.add(node.getStartPosition());
 		node.getLength();
-		className = node.getName().getIdentifier();
+		className.add(node.getName().getIdentifier());
 		return super.visit(node);
 	}
 	
@@ -83,7 +85,8 @@ public class ClassVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodDeclaration node) {
 		// TODO Auto-generated method stub
-		node.getStartPosition();
+		methodsNames.add(node.getName().getIdentifier());
+		methodsStart.add(node.getStartPosition());
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration singleVariableDeclaration : parameters) {
 			String name = singleVariableDeclaration.getName().toString();
@@ -104,7 +107,7 @@ public class ClassVisitor extends ASTVisitor {
 		return super.visit(node);
 	}
 	/**
-	 * Assignment类（赋值表达式）
+	 * Assignment绫伙紙璧嬪�艰〃杈惧紡锛�
 	 */
 	@Override
 	public void endVisit(Assignment node) {

@@ -32,5 +32,9 @@ public class StructureParser {
 
 	public String main(){
 		return null;
-	}	
+	}
+	
+	class sda(){
+		
+	}
 }
