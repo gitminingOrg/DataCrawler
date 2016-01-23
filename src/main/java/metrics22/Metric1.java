@@ -9,44 +9,150 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metric1 {
-	// public static void main(String[] args) throws IOException {
-	// Metric1 analysis = new Metric1();
-	// ClassVisitor visitor = analysis.ASTsearch();
-	// FileStringReader fileStringReader = new FileStringReader();
-	// String content = null;
-	// try {
-	// content = fileStringReader.getFileContent("StructureParser.java");
-	// // content = fileStringReader.getFileContent("wc");
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// double result = analysis.bracketUse(visitor);
-	// System.out.println(result);
-	// }
+//	public static void main(String[] args) throws IOException {
+//		Metric1 analysis = new Metric1();
+//		ClassVisitor visitor = analysis.ASTsearch();
+//		FileStringReader fileStringReader = new FileStringReader();
+//		String content = null;
+//		try {
+//			content = fileStringReader.getFileContent("StructureParser.java");
+//			// content = fileStringReader.getFileContent("wc");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		String result = analysis.getMetrics1Result("java",visitor);
+//		System.out.println(result);
+//	}
+
+	public String getMetrics1Result(String type, List<String> fileNames)
+			throws Exception {
+		String content = null;
+		ClassVisitor visitor = null;
+
+		int no11 = 0, no12 = 0, no21 = 0, no22 = 0, no31 = 0, no32 = 0, no41 = 0, no42 = 0, no51 = 0, no52 = 0, no61 = 0, no62 = 0, no71 = 0, no72 = 0;
+
+		for (String file : fileNames) {
+			content = getContent(file);
+			if (!type.equals("java")) {
+				content = new FileStringReader().removeUselessStmt(content);
+			}
+			visitor = ASTsearch(content);
+			int[] no1 = empltyLine(content);
+			no11 += no1[0];
+			no12 += no1[1];
+
+			int[] no2 = indentationRatio(content);
+			no21 += no2[0];
+			no22 += no2[1];
+
+			int[] no3 = bracketUse(visitor);
+			no31 += no3[0];
+			no32 += no3[1];
+
+			int[] no4 = braceUse(content);
+			no41 += no4[0];
+			no42 += no4[1];
+
+			int[] no5 = singleUseBrace(visitor);
+			no51 += no5[0];
+			no52 += no5[1];
+
+			int[] no6 = complexCut(visitor);
+			no61 += no6[0];
+			no62 += no6[1];
+
+			int[] no7 = caseUse(content);
+			no71 += no7[0];
+			no72 += no7[1];
+		}
+
+		StringBuffer result = new StringBuffer();
+
+		if (no12 == 0) {
+			result.append("#,");
+		} else {
+			double re = 1.0 * no11 / no12;
+			result.append(String.format("%.2f", re) + ",");
+		}
+
+		int notemp2 = no21 + no22;
+
+		if (notemp2 == 0) {
+			result.append("#:#,");
+		} else {
+			double re1 = 1.0 * no21 / notemp2;
+			double re2 = 1.0 * no22 / notemp2;
+			result.append(String.format("%.2f", re1) + ":" + String.format("%.2f", re2) + ",");
+		}
+
+		if (no32 == 0) {
+			result.append("#,");
+		} else {
+			double re3 = 1.0 * no31 / no32;
+			result.append(String.format("%.2f", re3) + ",");
+		}
+
+		int notemp4 = no41 + no42;
+
+		if (notemp4 == 0) {
+			result.append("#:#,");
+		} else {
+			double re4 = 1.0 * no41 / notemp4;
+			double re44 = 1.0 * no42 / notemp4;
+			result.append(String.format("%.2f", re4) + ":" + String.format("%.2f", re44) + ",");
+		}
+
+		int notemp5 = no51 + no52;
+
+		if (notemp5 == 0) {
+			result.append("#:#,");
+		} else {
+			double re5 = 1.0 * no51 / notemp5;
+			result.append(String.format("%.2f", re5) + ",");
+		}
+
+		if (no62 == 0) {
+			result.append("#,");
+		} else {
+			double re6 = 1.0 * no61 / no62;
+			result.append(String.format("%.2f", re6) + ",");
+		}
+
+		if (no72 == 0) {
+			result.append("#,");
+		} else {
+			double re7 = 1.0 * no71 / no72;
+			result.append(String.format("%.2f", re7) + ",");
+		}
+
+		return result.toString();
+
+	}
+
+	public static String getContent(String file) {
+		FileStringReader fileStringReader = new FileStringReader();
+		String content = null;
+		try {
+			content = fileStringReader.getFileContent(file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return content;
+	}
 
 	/**
 	 * ast search
 	 * 
 	 * @return
 	 */
-	public ClassVisitor ASTsearch() {
-		FileStringReader fileStringReader = new FileStringReader();
-		String content = null;
-		try {
-			content = fileStringReader.getFileContent("StructureParser.java");
-			// content = fileStringReader.getFileContent("wc");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static ClassVisitor ASTsearch(String content) {
 		//
 		ASTParser astParser = ASTParser.newParser(AST.JLS3);
 		astParser.setSource(new String(content).toCharArray());
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 		CompilationUnit result = (CompilationUnit) (astParser.createAST(null));
-		// astParser.setKind(ASTParser.K_STATEMENTS);
-		// Block result = (Block)astParser.createAST(null);
 		ClassVisitor testVisitor = new ClassVisitor(content,
 				LineIdentifier.paserLineEnd(content));
 		result.accept(testVisitor);
