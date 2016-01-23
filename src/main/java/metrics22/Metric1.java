@@ -9,21 +9,21 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metric1 {
-//	public static void main(String[] args) throws IOException {
-//		Metric1 analysis = new Metric1();
-//		ClassVisitor visitor = analysis.ASTsearch();
-//		FileStringReader fileStringReader = new FileStringReader();
-//		String content = null;
-//		try {
-//			content = fileStringReader.getFileContent("StructureParser.java");
-//			// content = fileStringReader.getFileContent("wc");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		double result = analysis.bracketUse(visitor);
-//		System.out.println(result);
-//	}
+	// public static void main(String[] args) throws IOException {
+	// Metric1 analysis = new Metric1();
+	// ClassVisitor visitor = analysis.ASTsearch();
+	// FileStringReader fileStringReader = new FileStringReader();
+	// String content = null;
+	// try {
+	// content = fileStringReader.getFileContent("StructureParser.java");
+	// // content = fileStringReader.getFileContent("wc");
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// double result = analysis.bracketUse(visitor);
+	// System.out.println(result);
+	// }
 
 	/**
 	 * ast search
@@ -60,7 +60,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of empty line
 	 */
-	public double empltyLine(String content) {
+	public int[] empltyLine(String content) {
 		double result = 0.0;
 		// empty line count
 		int emptyLine = 0;
@@ -75,11 +75,8 @@ public class Metric1 {
 			}
 		}
 		sumline = lines.length;
-		if (sumline == 0) {
-			return -1;
-		}
-		result = 1.0 * emptyLine / sumline;
-		return result;
+
+		return new int[] { emptyLine, sumline };
 	}
 
 	/**
@@ -89,7 +86,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return tab percentage & empty percentage
 	 */
-	public double[] indentationRatio(String content) {
+	public int[] indentationRatio(String content) {
 		double[] result = { 0.0, 0.0 };
 		// empty line count
 		int tabCount = 0;
@@ -108,14 +105,14 @@ public class Metric1 {
 				}
 			}
 		}
-		if (tabCount + emptyCount == 0) {
-			result[0] = -1;
-			result[1] = -1;
-			return result;
-		}
-		result[0] = 1.0 * tabCount / (tabCount + emptyCount);
-		result[1] = 1.0 * emptyCount / (tabCount + emptyCount);
-		return result;
+		// if (tabCount + emptyCount == 0) {
+		// result[0] = -1;
+		// result[1] = -1;
+		// return result;
+		// }
+		// result[0] = 1.0 * tabCount / (tabCount + emptyCount);
+		// result[1] = 1.0 * emptyCount / (tabCount + emptyCount);
+		return new int[] { tabCount, emptyCount };
 	}
 
 	/**
@@ -125,7 +122,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of（）when complicate lines
 	 */
-	public double bracketUse(ClassVisitor vistor) {
+	public int[] bracketUse(ClassVisitor vistor) {
 		double result = 0.0;
 		// bracket line count
 		int bracketCount = 0;
@@ -188,12 +185,11 @@ public class Metric1 {
 				}
 			}
 		}
-		if (sumCount == 0) {
-			return -1;
-		}
-		System.out.println(sumCount + "," + bracketCount);
-		result = 1.0 * bracketCount / sumCount;
-		return result;
+		// if (sumCount == 0) {
+		// return -1;
+		// }
+		// result = 1.0 * bracketCount / sumCount;
+		return new int[] { bracketCount, sumCount };
 	}
 
 	/**
@@ -203,7 +199,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return end percentage & head percentage
 	 */
-	public double[] braceUse(String content) {
+	public int[] braceUse(String content) {
 		double[] result = { 0.0, 0.0 };
 		// { at the end of line
 		int lastCount = 0;
@@ -220,14 +216,14 @@ public class Metric1 {
 				}
 			}
 		}
-		if (lastCount + firstCount == 0) {
-			result[0] = -1;
-			result[1] = -1;
-			return result;
-		}
-		result[0] = 1.0 * lastCount / (lastCount + firstCount);
-		result[1] = 1.0 * firstCount / (lastCount + firstCount);
-		return result;
+		// if (lastCount + firstCount == 0) {
+		// result[0] = -1;
+		// result[1] = -1;
+		// return result;
+		// }
+		// result[0] = 1.0 * lastCount / (lastCount + firstCount);
+		// result[1] = 1.0 * firstCount / (lastCount + firstCount);
+		return new int[] { lastCount, firstCount };
 	}
 
 	/**
@@ -237,7 +233,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of {} when one brace
 	 */
-	public double singleUseBrace(ClassVisitor vistor) {
+	public int[] singleUseBrace(ClassVisitor vistor) {
 		double result = 0.0;
 		// at the next of case
 		int useCount = 0;
@@ -258,11 +254,11 @@ public class Metric1 {
 				nouseCount++;
 			}
 		}
-		if (useCount + nouseCount == 0) {
-			return -1;
-		}
-		result = 1.0 * useCount / (useCount + nouseCount);
-		return result;
+		// if (useCount + nouseCount == 0) {
+		// return -1;
+		// }
+		// result = 1.0 * useCount / (useCount + nouseCount);
+		return new int[] { useCount, nouseCount };
 	}
 
 	/**
@@ -272,7 +268,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of cut lines
 	 */
-	public double complexCut(ClassVisitor vistor) {
+	public int[] complexCut(ClassVisitor vistor) {
 		double result = 0.0;
 		// at the next of case
 		int cutCount = 0;
@@ -299,11 +295,11 @@ public class Metric1 {
 				}
 			}
 		}
-		if (complexCount == 0) {
-			return -1;
-		}
-		result = 1.0 * cutCount / complexCount;
-		return result;
+		// if (complexCount == 0) {
+		// return -1;
+		// }
+		// result = 1.0 * cutCount / complexCount;
+		return new int[] { cutCount, complexCount };
 	}
 
 	/**
@@ -313,7 +309,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of next use
 	 */
-	public double caseUse(String content) {
+	public int[] caseUse(String content) {
 		double result = 0.0;
 		// at the next of case
 		int nextline = 0;
@@ -331,10 +327,10 @@ public class Metric1 {
 				}
 			}
 		}
-		if (caseline == 0) {
-			return -1;
-		}
-		result = 1.0 * nextline / caseline;
-		return result;
+		// if (caseline == 0) {
+		// return -1;
+		// }
+		// result = 1.0 * nextline / caseline;
+		return new int[] { nextline, caseline };
 	}
 }
