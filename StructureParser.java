@@ -4,7 +4,7 @@ public class StructureParser {
 	public StructureParser(){
 		a=1;
 		b=a+1;
-		c=c+a+1;
+		c=c+(a+1);
 	}
 	public static void main(String[] args) {
 		boolean f,e;
@@ -12,10 +12,11 @@ public class StructureParser {
 		fileStringReader = new FileStringReader();
 		String content = fileStringReader.getFileContent();
 		content = 2222;
-		if(content==1){
+		if(content==1)
+		{
 			
 		}else if(a==9){
-			a=a+1;
+			a=a+1+2;
 		}
 		/*sadsdasd
 		 asdsad
@@ -27,7 +28,15 @@ public class StructureParser {
 		while(a<0){
 			a++;
 		}
-		
+
+		switch (a) {
+		case 1:System.out.println(a);
+			
+			break;
+
+		default:
+			break;
+		}
 		//ddddd
 		
 		ASTParser astParser = ASTParser.newParser(AST.JLS3);  
