@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -23,7 +24,9 @@ public class Metrcis3 {
 		//codeAnalysis.commentRatio();
 		//codeAnalysis.commentMethod();
 		//codeAnalysis.classLen();
-		codeAnalysis.blankB4cmt();
+		//codeAnalysis.funcLen();
+		//codeAnalysis.blankB4cmt();
+		codeAnalysis.blankAfterCmt();
 	}
 
 	public double commentRatio(){
@@ -342,9 +345,11 @@ public class Metrcis3 {
 		int quotationState = 0;
 		boolean hasComment = false;
 		String commetState = "close";
+		HashMap<Integer, Boolean> commentLine = new HashMap<Integer, Boolean>();
+		ArrayList<Integer> blank = new ArrayList<Integer>();
 		
 		try {
-			FileReader reader = new FileReader(new File("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\metrics22\\Metrcis2.java"));
+			FileReader reader = new FileReader(new File("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\metrics22\\Metric1.java"));
 			BufferedReader bufferedReader = new BufferedReader(reader);
 			String string = "";
 			while((string = bufferedReader.readLine()) != null){
@@ -390,16 +395,106 @@ public class Metrcis3 {
 						}
 					}
 				}
-				//System.out.println(string + "-------------" + M + "-------" + commetState);
-				/*N ++;
-				String line = string.replaceAll("\\s+", " ").replaceAll("; /", ";/");
-				if(line.startsWith(" //") || line.contains(";//") || line.startsWith(" /*") || line.contains(";/*")){
-					System.out.println(string);
+				
+				String line = string.replaceAll("\\s+", "");
+				if(line.length() == 0 && commetState.equals("close")){
+					blank.add(N);
 				}
-				//System.out.println(string.replaceAll("\\s+", " "));*/
+				
+				if(line.startsWith("//") || line.startsWith("/*")){
+					commentLine.put(N, true);
+				}
 			}
-			System.out.println(N);
-			System.out.println(M);
+			
+			for(int i = 0 ; i < blank.size() ; i ++){
+				if(commentLine.containsKey(blank.get(i) + 1)){
+					System.out.println(blank.get(i) + 1);
+				}
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return 0.0;
+	}
+	
+	public double blankAfterCmt(){
+		int N = 0;
+		int M = 0;
+		double P = 0;
+		int quotationState = 0;
+		boolean hasComment = false;
+		String commetState = "close";
+		HashMap<Integer, Boolean> commentLine = new HashMap<Integer, Boolean>();
+		ArrayList<Integer> blank = new ArrayList<Integer>();
+		
+		try {
+			FileReader reader = new FileReader(new File("StructureParser.java"));
+			BufferedReader bufferedReader = new BufferedReader(reader);
+			String string = "";
+			while((string = bufferedReader.readLine()) != null){
+				N ++;
+				hasComment = false;
+				if(string.length() == 0){
+					if (commetState == "open") {
+						M ++;
+					}
+				}else{
+					for(int i = 0 ; i < string.length() ; i ++){
+						if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+							if(quotationState == 0){
+								quotationState = 1;
+							}else{
+								quotationState = 0;
+							}
+						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+							if(!hasComment){
+								M ++;
+							}
+							commentLine.put(N, true);
+							hasComment = true;
+							i = string.length();
+						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+							if(!hasComment){
+								M ++;
+							}
+							hasComment = true;
+							commetState = "open";
+							i ++ ;
+						}else if(quotationState == 0 && string.charAt(i) == '*' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
+							if(!hasComment){
+								M ++;
+							}
+							hasComment = true;
+							commetState = "close";
+							i ++;
+						}else if(commetState.equals("open")){
+							if(!hasComment){
+								M ++;
+							}
+							hasComment = true;
+						}
+					}
+				}
+				
+				String line = string.replaceAll("\\s+", "");
+				if(line.length() == 0 && commetState.equals("close")){
+					blank.add(N);
+				}
+				
+				if(line.endsWith("*/")){
+					commentLine.put(N, true);
+				}
+			}
+			
+			for(int i = 0 ; i < blank.size() ; i ++){
+				if(commentLine.containsKey(blank.get(i) - 1)){
+					System.out.println(blank.get(i) - 1);
+				}
+			}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
