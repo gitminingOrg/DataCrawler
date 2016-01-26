@@ -108,6 +108,8 @@ public class Metrics2 {
 		} else {
 			result += (1.0 * no91 / no92) + ",";
 		}
+		
+		result += "#,";
 
 		if (no112 == 0) {
 			result += "#,";

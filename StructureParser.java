@@ -18,11 +18,17 @@ public class StructureParser {
 		}else if(a==9){
 			a=a+1+2;
 		}
+		/*sadsdasd
+		 asdsad
+		 
+		 //dsasdads*/ //sdasdasd
+		
 		for(int i=0;i<9;i++)
 			a++;
 		while(a<0){
 			a++;
 		}
+
 		switch (a) {
 		case 1:System.out.println(a);
 			
@@ -32,8 +38,10 @@ public class StructureParser {
 			break;
 		}
 		//ddddd
+		
 		ASTParser astParser = ASTParser.newParser(AST.JLS3);  
-        astParser.setSource(new String(input).toCharArray());/*aaaaaaaaaaaaaaaaaaaaaaaaaa*/;  
+        astParser.setSource(new String(input).toCharArray());/*aaaaaaaaaaaaaaaaaaaaaaaaaa*/
+        
         astParser.setKind(ASTParser.K_COMPILATION_UNIT);  
         CompilationUnit result = (CompilationUnit) (astParser.createAST(null));  //sssssss behind stmt
 	}
