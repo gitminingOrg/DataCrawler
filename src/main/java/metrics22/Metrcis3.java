@@ -32,7 +32,7 @@ public class Metrcis3 {
 		//codeAnalysis.blankAfterCmt(list);
 	}
 
-	public String getMetrics2Result(List<String> fileNames) throws Exception{
+	public String getMetrics3Result(List<String> fileNames) throws Exception{
 		String result = "";
 		int[] commentRatio = commentRatio(fileNames);
 		int[] commentMethod = commentMethod(fileNames);
@@ -105,19 +105,19 @@ public class Metrcis3 {
 						}
 					}else{
 						for(int i = 0 ; i < string.length() ; i ++){
-							if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+							if(commetState.equals("close") && string.charAt(i) == '"' &&  i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 								if(quotationState == 0){
 									quotationState = 1;
 								}else{
 									quotationState = 0;
 								}
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 								if(!hasComment){
 									M ++;
 								}
 								hasComment = true;
 								i = string.length();
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 								if(!hasComment){
 									M ++;
 								}
@@ -169,16 +169,16 @@ public class Metrcis3 {
 				String string = "";
 				while((string = bufferedReader.readLine()) != null){
 					for(int i = 0 ; i < string.length() ; i ++){
-						if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+						if(commetState.equals("close") && string.charAt(i) == '"' && i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 							if(quotationState == 0){
 								quotationState = 1;
 							}else{
 								quotationState = 0;
 							}
-						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 							N1 ++;
 							i = string.length();
-						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+						}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 							N2 ++;
 							commetState = "open";
 							i ++ ;
@@ -257,15 +257,15 @@ public class Metrcis3 {
 								inClass = true;
 							}
 							if(inClass){
-								if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+								if(commetState.equals("close") && string.charAt(i) == '"' && i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 									if(quotationState == 0){
 										quotationState = 1;
 									}else{
 										quotationState = 0;
 									}
-								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 									i = string.length();
-								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 									commetState = "open";
 									i ++ ;
 								}else if(quotationState == 0 && string.charAt(i) == '*' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
@@ -360,15 +360,15 @@ public class Metrcis3 {
 							}
 							if(inClass){
 								//System.out.print(string.charAt(i));
-								if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+								if(commetState.equals("close") && string.charAt(i) == '"' && i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 									if(quotationState == 0){
 										quotationState = 1;
 									}else{
 										quotationState = 0;
 									}
-								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 									i = string.length();
-								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+								}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 									commetState = "open";
 									i ++ ;
 								}else if(quotationState == 0 && string.charAt(i) == '*' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
@@ -440,20 +440,20 @@ public class Metrcis3 {
 						}
 					}else{
 						for(int i = 0 ; i < string.length() ; i ++){
-							if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+							if(commetState.equals("close") && string.charAt(i) == '"' && i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 								if(quotationState == 0){
 									quotationState = 1;
 								}else{
 									quotationState = 0;
 								}
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 								n ++;
 								if(!hasComment){
 									M ++;
 								}
 								hasComment = true;
 								i = string.length();
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 								n ++;
 								if(!hasComment){
 									M ++;
@@ -537,13 +537,13 @@ public class Metrcis3 {
 						}
 					}else{
 						for(int i = 0 ; i < string.length() ; i ++){
-							if(commetState.equals("close") && string.charAt(i) == '"' && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+							if(commetState.equals("close") && string.charAt(i) == '"' && i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
 								if(quotationState == 0){
 									quotationState = 1;
 								}else{
 									quotationState = 0;
 								}
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '/'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
 								n ++;
 								if(!hasComment){
 									M ++;
@@ -551,7 +551,7 @@ public class Metrcis3 {
 								commentLine.put(N, true);
 								hasComment = true;
 								i = string.length();
-							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.charAt(i + 1) == '*'){
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
 								n ++;
 								if(!hasComment){
 									M ++;
