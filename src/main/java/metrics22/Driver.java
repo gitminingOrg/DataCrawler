@@ -18,7 +18,7 @@ public class Driver {
 		Metrics2 metrics2 = new Metrics2();
 		String metrics2Result = metrics2.getMetrics2Result(type, files);
 		Metrcis3 metrcis3 = new Metrcis3();
-		String metrics3Result = metrcis3.getMetrics2Result(files);
+		String metrics3Result = metrcis3.getMetrics3Result(files);
 		System.out.print(metric1result+metrics2Result+metrics3Result);
 	}
 
