@@ -9,21 +9,21 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metric1 {
-	// public static void main(String[] args) throws IOException {
-	// Metric1 analysis = new Metric1();
-	// ClassVisitor visitor = analysis.ASTsearch();
-	// FileStringReader fileStringReader = new FileStringReader();
-	// String content = null;
-	// try {
-	// content = fileStringReader.getFileContent("StructureParser.java");
-	// // content = fileStringReader.getFileContent("wc");
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// String result = analysis.getMetrics1Result("java",visitor);
-	// System.out.println(result);
-	// }
+//	public static void main(String[] args) throws IOException {
+//		Metric1 analysis = new Metric1();
+//		ClassVisitor visitor = analysis.ASTsearch();
+//		FileStringReader fileStringReader = new FileStringReader();
+//		String content = null;
+//		try {
+//			content = fileStringReader.getFileContent("StructureParser.java");
+//			// content = fileStringReader.getFileContent("wc");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		String result = analysis.getMetrics1Result("java",visitor);
+//		System.out.println(result);
+//	}
 
 	public String getMetrics1Result(String type, List<String> fileNames)
 			throws Exception {
@@ -83,8 +83,7 @@ public class Metric1 {
 		} else {
 			double re1 = 1.0 * no21 / notemp2;
 			double re2 = 1.0 * no22 / notemp2;
-			result.append(String.format("%.2f", re1) + ":"
-					+ String.format("%.2f", re2) + ",");
+			result.append(String.format("%.2f", re1) + ":" + String.format("%.2f", re2) + ",");
 		}
 
 		if (no32 == 0) {
@@ -101,8 +100,7 @@ public class Metric1 {
 		} else {
 			double re4 = 1.0 * no41 / notemp4;
 			double re44 = 1.0 * no42 / notemp4;
-			result.append(String.format("%.2f", re4) + ":"
-					+ String.format("%.2f", re44) + ",");
+			result.append(String.format("%.2f", re4) + ":" + String.format("%.2f", re44) + ",");
 		}
 
 		int notemp5 = no51 + no52;
@@ -252,7 +250,7 @@ public class Metric1 {
 				express = express.substring(express.indexOf("=") + 1);
 			}
 			int operator = 0;
-			for (int i = 0; i < express.length(); i++) {
+			for (int i = 1; i < (express.length()-1); i++) {
 				if (opers.contains(express.charAt(i))
 						&& (!opers.contains(express.charAt(i + 1)))
 						&& (!opers.contains(express.charAt(i - 1)))) {
@@ -274,7 +272,7 @@ public class Metric1 {
 				String express = specialStmt.getStmt();
 				if (express.contains("{")) {
 					express = express.substring(0, express.indexOf("{"));
-				} else if (express.contains(")")) {
+				} else if(express.contains(")")){
 					express = express.substring(0, express.lastIndexOf(")"));
 				}
 				for (int i = 0; i < express.length(); i++) {
