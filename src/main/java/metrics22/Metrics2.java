@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class Metrics2 {
 
 	public static void main(String[] args) throws Exception {
-		args = new String[]{"java","wc"};
+		args = new String[] { "java", "wc" };
 		if (args.length != 2) {
 			System.out.println("r u ****ing kidding me?");
 			return;
@@ -22,119 +22,123 @@ public class Metrics2 {
 		System.out.println(metrics2.getMetrics2Result(type, files));
 	}
 
-	public String getMetrics2Result(String type, List<String> fileNames)
-			throws Exception {
-		String content = null;
-		ClassVisitor visitor = null;
+	public String getMetrics2Result(String type, List<String> fileNames) {
+		try {
+			String content = null;
+			ClassVisitor visitor = null;
 
-		int no81 = 0, no82 = 0, no91 = 0, no92 = 0, no111 = 0, no112 = 0, no121 = 0, no122 = 0, no131 = 0, no132 = 0, no14 = 0, no151 = 0, no152 = 0;
-		if (type.equals("java")) {
+			int no81 = 0, no82 = 0, no91 = 0, no92 = 0, no111 = 0, no112 = 0, no121 = 0, no122 = 0, no131 = 0, no132 = 0, no14 = 0, no151 = 0, no152 = 0;
+			if (type.equals("java")) {
 
-			for (String file : fileNames) {
-				content = getContent(file);
-				visitor = ASTsearch(content);
-				int[] no8 = no8singleLen(content);
-				no81 += no8[0];
-				no82 += no8[1];
+				for (String file : fileNames) {
+					content = getContent(file);
+					visitor = ASTsearch(content);
+					int[] no8 = no8singleLen(content);
+					no81 += no8[0];
+					no82 += no8[1];
 
-				int[] no9 = no9spaceNum(content);
-				no91 += no9[0];
-				no92 += no9[1];
+					int[] no9 = no9spaceNum(content);
+					no91 += no9[0];
+					no92 += no9[1];
 
-				int[] no11 = no11assignSpaceUse(visitor);
-				no111 += no11[0];
-				no112 += no11[1];
+					int[] no11 = no11assignSpaceUse(visitor);
+					no111 += no11[0];
+					no112 += no11[1];
 
-				int[] no12 = no12operatorPerStmt(content);
-				no121 += no12[0];
-				no122 += no12[1];
+					int[] no12 = no12operatorPerStmt(content);
+					no121 += no12[0];
+					no122 += no12[1];
 
-				int[] no13 = no13varsPerLine(visitor);
-				no131 += no13[0];
-				no132 += no13[1];
+					int[] no13 = no13varsPerLine(visitor);
+					no131 += no13[0];
+					no132 += no13[1];
 
-				no14 = no14 == 1 ? 1 : no14singleCharVarUs(visitor);
+					no14 = no14 == 1 ? 1 : no14singleCharVarUs(visitor);
 
-				int[] no15 = no15averageVarLength(visitor);
-				no151 += no15[0];
-				no152 += no15[1];
+					int[] no15 = no15averageVarLength(visitor);
+					no151 += no15[0];
+					no152 += no15[1];
+				}
+			} else {
+
+				for (String file : fileNames) {
+					content = getContent(file);
+					String astContent = new FileStringReader()
+							.removeUselessStmt(content);
+					visitor = ASTsearch(astContent);
+					int[] no8 = no8singleLen(content);
+					no81 += no8[0];
+					no82 += no8[1];
+
+					int[] no9 = no9spaceNum(content);
+					no91 += no9[0];
+					no92 += no9[1];
+
+					int[] no11 = no11assignSpaceUse(visitor);
+					no111 += no11[0];
+					no112 += no11[1];
+
+					int[] no12 = no12operatorPerStmt(content);
+					no121 += no12[0];
+					no122 += no12[1];
+
+					int[] no13 = no13varsPerLine(visitor);
+					no131 += no13[0];
+					no132 += no13[1];
+
+					no14 = no14 == 1 ? 1 : no14singleCharVarUs(visitor);
+
+					int[] no15 = no15averageVarLength(visitor);
+					no151 += no15[0];
+					no152 += no15[1];
+				}
+
 			}
-		} else {
 
-			for (String file : fileNames) {
-				content = getContent(file);
-				String astContent = new FileStringReader()
-						.removeUselessStmt(content);
-				visitor = ASTsearch(astContent);
-				int[] no8 = no8singleLen(content);
-				no81 += no8[0];
-				no82 += no8[1];
+			String result = "";
 
-				int[] no9 = no9spaceNum(content);
-				no91 += no9[0];
-				no92 += no9[1];
-
-				int[] no11 = no11assignSpaceUse(visitor);
-				no111 += no11[0];
-				no112 += no11[1];
-
-				int[] no12 = no12operatorPerStmt(content);
-				no121 += no12[0];
-				no122 += no12[1];
-
-				int[] no13 = no13varsPerLine(visitor);
-				no131 += no13[0];
-				no132 += no13[1];
-
-				no14 = no14 == 1 ? 1 : no14singleCharVarUs(visitor);
-
-				int[] no15 = no15averageVarLength(visitor);
-				no151 += no15[0];
-				no152 += no15[1];
+			if (no82 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no81 / no82) + ",";
 			}
 
-		}
+			if (no92 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no91 / no92) + ",";
+			}
 
-		String result = "";
+			result += "#,";
 
-		if (no82 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no81 / no82) + ",";
-		}
+			if (no112 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no111 / no112) + ",";
+			}
 
-		if (no92 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no91 / no92) + ",";
-		}
-		
-		result += "#,";
+			if (no122 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no121 / no122) + ",";
+			}
 
-		if (no112 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no111 / no112) + ",";
+			if (no132 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no131 / no132) + ",";
+			}
+			result += no14 + ",";
+			if (no152 == 0) {
+				result += "#,";
+			} else {
+				result += (1.0 * no151 / no152) + ",";
+			}
+			return result;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return "文件有问题";
 		}
-
-		if (no122 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no121 / no122) + ",";
-		}
-
-		if (no132 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no131 / no132) + ",";
-		}
-		result += no14 + ",";
-		if (no152 == 0) {
-			result += "#,";
-		} else {
-			result += (1.0 * no151 / no152) + ",";
-		}
-		return result;
 
 	}
 
@@ -301,101 +305,111 @@ public class Metrics2 {
 	 * @return
 	 */
 	public int[] no12operatorPerStmt(String content) {
-		int operatorCount = 0;
-		content = ' ' + content;
-		int length = content.length();
+		try {
+			int operatorCount = 0;
+			content = ' ' + content;
+			int length = content.length();
 
-		boolean quote = false;
-		// this is annotation1
-		boolean annotation1 = false;
-		/* this is annotation2 */
-		boolean annotation2 = false;
+			boolean quote = false;
+			// this is annotation1
+			boolean annotation1 = false;
+			/* this is annotation2 */
+			boolean annotation2 = false;
 
-		for (int i = 0; i < length; i++) {
-			if (annotation1) {
-				if (content.charAt(i) == '\n') {
-					annotation1 = false;
-				}
-			}
-			if (annotation2) {
-				if (content.charAt(i) == '*' && i < length - 1
-						&& content.charAt(i + 1) == '/') {
-					annotation2 = false;
-				}
-			}
-			if (!annotation1 && !annotation2) {
-				if (!quote && content.charAt(i) == '/' && i < length - 1
-						&& content.charAt(i + 1) == '/') {
-					annotation1 = true;
-				} else if (!quote && content.charAt(i) == '/' && i < length - 1
-						&& content.charAt(i + 1) == '*') {
-					annotation2 = true;
-				} else if (content.charAt(i) == '"') {
-					quote = quote ? false : true;
-				} else if (!quote) {
-
-					// //////////////////////////////////starting finding
-					// operator////////////////////////////////////
-					if (content.charAt(i) == '!') {
-						operatorCount++;
-						if (content.charAt(i + 1) == '=') {
-							i++;
-						}
-					} else if (content.charAt(i) == '~') {
-						operatorCount++;
-					} else if (content.charAt(i) == '+') {
-						operatorCount++;
-						if (content.charAt(i + 1) == '='
-								|| content.charAt(i + 1) == '+') {
-							i++;
-						}
-					} else if (content.charAt(i) == '-') {
-						operatorCount++;
-						if (content.charAt(i + 1) == '='
-								|| content.charAt(i + 1) == '-') {
-							i++;
-						}
-					} else if (content.charAt(i) == '*'
-							|| content.charAt(i) == '/'
-							|| content.charAt(i) == '%'
-							|| content.charAt(i) == '='
-							|| content.charAt(i) == '^') {
-						operatorCount++;
-						if (content.charAt(i + 1) == '=') {
-							i++;
-						}
-					} else if (content.charAt(i) == '?') {
-						operatorCount++;
-					} else if (content.charAt(i) == '&'
-							|| content.charAt(i) == '|') {
-						operatorCount++;
-						if (content.charAt(i + 1) == content.charAt(i)) {
-							i++;
-						}
-					} else if (content.charAt(i) == '<'
-							|| content.charAt(i) == '>') {
-						operatorCount++;
-						while (content.charAt(i + 1) == '<'
-								|| content.charAt(i + 1) == '>'
-								|| content.charAt(i + 1) == '=') {
-							i++;
-						}
+			for (int i = 0; i < length; i++) {
+				if (annotation1) {
+					if (content.charAt(i) == '\n') {
+						annotation1 = false;
 					}
-					// //////////////////////////////////////////////////////////////////////////////////////////////
+				}
+				if (annotation2) {
+					if (content.charAt(i) == '*' && i < length - 1
+							&& content.charAt(i + 1) == '/') {
+						annotation2 = false;
+					}
+				}
+				if (!annotation1 && !annotation2) {
+					if (!quote && content.charAt(i) == '/' && i < length - 1
+							&& content.charAt(i + 1) == '/') {
+						annotation1 = true;
+					} else if (!quote && content.charAt(i) == '/'
+							&& i < length - 1 && content.charAt(i + 1) == '*') {
+						annotation2 = true;
+					} else if (content.charAt(i) == '"') {
+						quote = quote ? false : true;
+					} else if (!quote) {
+
+						// //////////////////////////////////starting finding
+						// operator////////////////////////////////////
+						if (content.charAt(i) == '!') {
+							operatorCount++;
+							if (i < content.length() - 1
+									&& content.charAt(i + 1) == '=') {
+								i++;
+							}
+						} else if (content.charAt(i) == '~') {
+							operatorCount++;
+						} else if (content.charAt(i) == '+') {
+							operatorCount++;
+							if (i < content.length() - 1
+									&& content.charAt(i + 1) == '='
+									|| content.charAt(i + 1) == '+') {
+								i++;
+							}
+						} else if (content.charAt(i) == '-') {
+							operatorCount++;
+							if (i < content.length() - 1
+									&& content.charAt(i + 1) == '='
+									|| content.charAt(i + 1) == '-') {
+								i++;
+							}
+						} else if (content.charAt(i) == '*'
+								|| content.charAt(i) == '/'
+								|| content.charAt(i) == '%'
+								|| content.charAt(i) == '='
+								|| content.charAt(i) == '^') {
+							operatorCount++;
+							if (i < content.length() - 1
+									&& content.charAt(i + 1) == '=') {
+								i++;
+							}
+						} else if (content.charAt(i) == '?') {
+							operatorCount++;
+						} else if (content.charAt(i) == '&'
+								|| content.charAt(i) == '|') {
+							operatorCount++;
+							if (i < content.length() - 1
+									&& content.charAt(i + 1) == content
+											.charAt(i)) {
+								i++;
+							}
+						} else if (content.charAt(i) == '<'
+								|| content.charAt(i) == '>') {
+							operatorCount++;
+							while (content.charAt(i + 1) == '<'
+									|| content.charAt(i + 1) == '>'
+									|| content.charAt(i + 1) == '=') {
+								i++;
+							}
+						}
+						// //////////////////////////////////////////////////////////////////////////////////////////////
+					}
 				}
 			}
-		}
-		int lineCount = 0;
-		String[] lines = content.split("\n");
-		for (String line : lines) {
-			// remove blank and 3 kinds of lines
-			line = line.trim();
-			if (!(line.length() < 1 || line.equals("//") || line.equals("{") || line
-					.equals("}"))) {
-				lineCount++;
+			int lineCount = 0;
+			String[] lines = content.split("\n");
+			for (String line : lines) {
+				// remove blank and 3 kinds of lines
+				line = line.trim();
+				if (!(line.length() < 1 || line.equals("//")
+						|| line.equals("{") || line.equals("}"))) {
+					lineCount++;
+				}
 			}
+			return new int[] { operatorCount, lineCount };
+		} catch (Exception e) {
+			return new int[] { 0, 0 };
 		}
-		return new int[] { operatorCount, lineCount };
 	}
 
 	/**

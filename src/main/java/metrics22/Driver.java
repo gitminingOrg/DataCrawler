@@ -6,7 +6,6 @@ public class Driver {
 
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
-		args = new String[]{"java","test.txt"};
 		if (args.length != 2) {
 			System.out.println("r u ****ing kidding me?");
 			return;
