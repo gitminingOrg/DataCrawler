@@ -9,21 +9,21 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Metric1 {
-//	public static void main(String[] args) throws IOException {
-//		Metric1 analysis = new Metric1();
-//		ClassVisitor visitor = analysis.ASTsearch();
-//		FileStringReader fileStringReader = new FileStringReader();
-//		String content = null;
-//		try {
-//			content = fileStringReader.getFileContent("StructureParser.java");
-//			// content = fileStringReader.getFileContent("wc");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		String result = analysis.getMetrics1Result("java",visitor);
-//		System.out.println(result);
-//	}
+	// public static void main(String[] args) throws IOException {
+	// Metric1 analysis = new Metric1();
+	// ClassVisitor visitor = analysis.ASTsearch();
+	// FileStringReader fileStringReader = new FileStringReader();
+	// String content = null;
+	// try {
+	// content = fileStringReader.getFileContent("StructureParser.java");
+	// // content = fileStringReader.getFileContent("wc");
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// String result = analysis.getMetrics1Result("java",visitor);
+	// System.out.println(result);
+	// }
 
 	public String getMetrics1Result(String type, List<String> fileNames)
 			throws Exception {
@@ -34,11 +34,12 @@ public class Metric1 {
 
 		for (String file : fileNames) {
 			content = getContent(file);
+			String mycontent = "";
 			if (!type.equals("java")) {
-				content = new FileStringReader().removeUselessStmt(content);
+				mycontent = new FileStringReader().removeUselessStmt(content);
 			}
-			visitor = ASTsearch(content);
-			int[] no1 = empltyLine(content);
+			visitor = ASTsearch(mycontent);
+			int[] no1 = empltyLine(content, type);
 			no11 += no1[0];
 			no12 += no1[1];
 
@@ -83,7 +84,8 @@ public class Metric1 {
 		} else {
 			double re1 = 1.0 * no21 / notemp2;
 			double re2 = 1.0 * no22 / notemp2;
-			result.append(String.format("%.2f", re1) + ":" + String.format("%.2f", re2) + ",");
+			result.append(String.format("%.2f", re1) + ":"
+					+ String.format("%.2f", re2) + ",");
 		}
 
 		if (no32 == 0) {
@@ -100,7 +102,8 @@ public class Metric1 {
 		} else {
 			double re4 = 1.0 * no41 / notemp4;
 			double re44 = 1.0 * no42 / notemp4;
-			result.append(String.format("%.2f", re4) + ":" + String.format("%.2f", re44) + ",");
+			result.append(String.format("%.2f", re4) + ":"
+					+ String.format("%.2f", re44) + ",");
 		}
 
 		int notemp5 = no51 + no52;
@@ -166,13 +169,17 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of empty line
 	 */
-	public int[] empltyLine(String content) {
+	public int[] empltyLine(String content, String type) {
 		double result = 0.0;
 		// empty line count
 		int emptyLine = 0;
 		// sum of all lines
 		int sumline = 0;
+		if (content.trim().equals("")) {
+			return new int[] { emptyLine, sumline };
+		}
 		String[] lines = content.split("\n");
+
 		for (String line : lines) {
 			// remove blank
 			line = line.trim();
@@ -181,7 +188,6 @@ public class Metric1 {
 			}
 		}
 		sumline = lines.length;
-
 		return new int[] { emptyLine, sumline };
 	}
 
@@ -198,6 +204,9 @@ public class Metric1 {
 		int tabCount = 0;
 		// sum of all lines
 		int emptyCount = 0;
+		if (content.trim().equals("")) {
+			return new int[] { tabCount, emptyCount };
+		}
 		String[] lines = content.split("\n");
 		for (String line : lines) {
 			// remove blank
@@ -250,7 +259,7 @@ public class Metric1 {
 				express = express.substring(express.indexOf("=") + 1);
 			}
 			int operator = 0;
-			for (int i = 1; i < (express.length()-1); i++) {
+			for (int i = 1; i < (express.length() - 1); i++) {
 				if (opers.contains(express.charAt(i))
 						&& (!opers.contains(express.charAt(i + 1)))
 						&& (!opers.contains(express.charAt(i - 1)))) {
@@ -272,7 +281,7 @@ public class Metric1 {
 				String express = specialStmt.getStmt();
 				if (express.contains("{")) {
 					express = express.substring(0, express.indexOf("{"));
-				} else if(express.contains(")")){
+				} else if (express.contains(")")) {
 					express = express.substring(0, express.lastIndexOf(")"));
 				}
 				for (int i = 0; i < express.length(); i++) {
@@ -306,11 +315,13 @@ public class Metric1 {
 	 * @return end percentage & head percentage
 	 */
 	public int[] braceUse(String content) {
-		double[] result = { 0.0, 0.0 };
 		// { at the end of line
 		int lastCount = 0;
 		// { at the head of line
 		int firstCount = 0;
+		if (content.trim().equals("")) {
+			return new int[] { lastCount, firstCount };
+		}
 		String[] lines = content.split("\n");
 		for (String line : lines) {
 			line = line.trim();
