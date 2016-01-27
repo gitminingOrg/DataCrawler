@@ -337,10 +337,10 @@ public class RepoFilter1 {
 				}
 
 				if (result
-						.contains("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\">")) {
+						.contains("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\" data-ga-click=\"Repository, language bar stats toggle, location:repo overview\">")) {
 					if(result.contains("aria-label=\"Java ")){
 						String str = result
-								.split("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\">")[1]
+								.split("<div class=\"repository-lang-stats-graph js-toggle-lang-stats\" title=\"Click for language details\" data-ga-click=\"Repository, language bar stats toggle, location:repo overview\">")[1]
 								.split("</div>")[0].split("aria-label=\"Java ")[1].split("%\" ")[0];
 						System.out.println(Double.parseDouble(str));
 						if (Double.parseDouble(str) >= 50.0) {
