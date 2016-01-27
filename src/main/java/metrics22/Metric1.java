@@ -34,11 +34,12 @@ public class Metric1 {
 
 		for (String file : fileNames) {
 			content = getContent(file);
+			String mycontent = "";
 			if (!type.equals("java")) {
-				content = new FileStringReader().removeUselessStmt(content);
+				mycontent = new FileStringReader().removeUselessStmt(content);
 			}
-			visitor = ASTsearch(content);
-			int[] no1 = empltyLine(content);
+			visitor = ASTsearch(mycontent);
+			int[] no1 = empltyLine(content, type);
 			no11 += no1[0];
 			no12 += no1[1];
 
@@ -168,7 +169,7 @@ public class Metric1 {
 	 *            the whole text
 	 * @return percentage of empty line
 	 */
-	public int[] empltyLine(String content) {
+	public int[] empltyLine(String content, String type) {
 		double result = 0.0;
 		// empty line count
 		int emptyLine = 0;
@@ -178,6 +179,7 @@ public class Metric1 {
 			return new int[] { emptyLine, sumline };
 		}
 		String[] lines = content.split("\n");
+
 		for (String line : lines) {
 			// remove blank
 			line = line.trim();
@@ -186,7 +188,6 @@ public class Metric1 {
 			}
 		}
 		sumline = lines.length;
-		System.out.println(sumline);
 		return new int[] { emptyLine, sumline };
 	}
 
