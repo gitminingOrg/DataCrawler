@@ -39,8 +39,8 @@ public class StructureParser {
 		}
 		//ddddd
 		
-		ASTParser astParser = ASTParser.newParser(AST.JLS3);  
-        astParser.setSource(new String(input).toCharArray());/*aaaaaaaaaaaaaaaaaaaaaaaaaa*/
+		ASTParser astParser = ASTParser.newParser(AST.JLS3);
+        /*gvgjvjh*/ astParser.setSource(new String(input).toCharArray()); /*aaaaaaaaaaaaaaaaaaaaaaaaaa*/ //jgvhgv
         
         astParser.setKind(ASTParser.K_COMPILATION_UNIT);  
         CompilationUnit result = (CompilationUnit) (astParser.createAST(null));  //sssssss behind stmt

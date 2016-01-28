@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -15,11 +17,12 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class Metrcis3 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//String string = "\"sda.sdasd,.as,d.,.;][[;/asdsadas//*/*84556\"";
+		String string = "b";
 		//System.out.println(string.contains("\"[\\d\\D]*;//[\\d\\D]*\""));
-		//Pattern pattern = Pattern.compile("\"[\\d\\D]*;//[\\d\\D]*\"");
-		//Matcher matcher = pattern.matcher(string);
+		Pattern pattern = Pattern.compile("[^abc]");
+		Matcher matcher = pattern.matcher(string);
 		//System.out.println(matcher.matches());
+		
 		List<String> list = new ArrayList<String>();
 		list.add("StructureParser.java");
 		list.add("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\githubCrawler\\GitCrawler.java");
@@ -30,6 +33,13 @@ public class Metrcis3 {
 		//codeAnalysis.funcLen(list);
 		//codeAnalysis.blankB4cmt(list);
 		//codeAnalysis.blankAfterCmt(list);
+		//codeAnalysis.blankBetweenCAndC(list);
+		try {
+			System.out.println(codeAnalysis.getMetrics3Result(list));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public String getMetrics3Result(List<String> fileNames) throws Exception{
@@ -40,11 +50,18 @@ public class Metrcis3 {
 		int[] funcLen = funcLen(fileNames);
 		int[] blankB4cmt = blankB4cmt(fileNames);
 		int[] blankAfterCmt = blankAfterCmt(fileNames);
+		int[] blankBetweenCAndC = blankBetweenCAndC(fileNames);
 		
 		if(commentRatio[0] == 0){
 			result = result + "#,";
 		}else{
 			result = result + (commentRatio[1] / 1.0 / commentRatio[0]) + ",";
+		}
+		
+		if(blankBetweenCAndC[0] == 0){
+			result = result + "#,";
+		}else{
+			result = result + (blankBetweenCAndC[1] / 1.0 / blankBetweenCAndC[0]) + ",";
 		}
 		
 		if((commentMethod[0] + commentMethod[1]) == 0){
@@ -76,6 +93,7 @@ public class Metrcis3 {
 		}else{
 			result = result + (funcLen[1] / 1.0 / funcLen[0]);
 		}
+		
 		
 		return result;
 	} 
@@ -140,6 +158,8 @@ public class Metrcis3 {
 						}
 					}
 				}
+				bufferedReader.close();
+				reader.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -189,6 +209,8 @@ public class Metrcis3 {
 						}
 					}
 				}
+				bufferedReader.close();
+				reader.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -291,11 +313,14 @@ public class Metrcis3 {
 							M ++;
 						}
 					}
+					bufferedReader.close();
+					reader.close();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+			
 		}
 		result[0] = N;
 		result[1] = M;
@@ -395,6 +420,8 @@ public class Metrcis3 {
 							M ++;
 						}
 					}
+					bufferedReader.close();
+					reader.close();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -493,6 +520,8 @@ public class Metrcis3 {
 					}
 				}
 				
+				bufferedReader.close();
+				reader.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -590,6 +619,9 @@ public class Metrcis3 {
 						m ++;
 					}
 				}
+				
+				bufferedReader.close();
+				reader.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -598,6 +630,120 @@ public class Metrcis3 {
 		
 		result[0] = n;
 		result[1] = m;
+		return result;
+	}
+	
+	public int[] blankBetweenCAndC(List<String> fileNames){
+		int N = 0;
+		int M = 0;
+		int P = 0;
+		int[] result = new int[2];
+		int quotationState = 0;
+		boolean hasComment = false;
+		String commetState = "close";
+		HashMap<Integer, Integer> commentHashMap = new HashMap<Integer, Integer>();
+		HashMap<Integer, Boolean> code = new HashMap<Integer, Boolean>();
+		
+		for(int k = 0 ; k < fileNames.size() ; k ++){
+			quotationState = 0;
+			hasComment = false;
+			commetState = "close";
+			commentHashMap.clear();
+			code.clear();
+			try {
+				FileReader reader = new FileReader(new File(fileNames.get(k)));
+				BufferedReader bufferedReader = new BufferedReader(reader);
+				String string = "";
+				while((string = bufferedReader.readLine()) != null){
+					String noComment = "";
+					String containComment = "";
+					boolean judge = false;
+					N ++;
+					hasComment = false;
+					if(string.length() == 0){
+						if (commetState == "open") {
+						}
+					}else{
+						for(int i = 0 ; i < string.length() ; i ++){
+							if(commetState.equals("close") && string.charAt(i) == '"' &&  i > 0 && string.charAt(i - 1) != '\\' && string.charAt(i - 1) != '\''){
+								if(quotationState == 0){
+									quotationState = 1;
+								}else{
+									quotationState = 0;
+								}
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
+								if(!hasComment){
+								}
+								if(commentHashMap.containsKey(N)){
+									commentHashMap.put(N, commentHashMap.get(N) + 1);
+								}else{
+									commentHashMap.put(N, 1);
+								}
+								containComment = containComment + "//";
+								hasComment = true;
+								i = string.length();
+							}else if(commetState.equals("close") && quotationState == 0 && string.charAt(i) == '/' && string.length() > i + 1 && string.charAt(i + 1) == '*'){
+								if(!hasComment){
+								}
+								judge = true;
+								if(commentHashMap.containsKey(N)){
+									commentHashMap.put(N, commentHashMap.get(N) + 1);
+								}else{
+									commentHashMap.put(N, 1);
+								}
+								containComment = containComment + "/*";
+								hasComment = true;
+								commetState = "open";
+								i ++ ;
+							}else if(quotationState == 0 && string.charAt(i) == '*' && string.length() > i + 1 && string.charAt(i + 1) == '/'){
+								if(!hasComment){
+								}
+								if(!judge){
+									if(commentHashMap.containsKey(N)){
+										commentHashMap.put(N, commentHashMap.get(N) + 1);
+									}else{
+										commentHashMap.put(N, 1);
+									}
+								}
+								containComment = containComment + "*/";
+								hasComment = true;
+								commetState = "close";
+								i ++;
+							}else if(commetState.equals("open")){
+								if(!hasComment){
+								}
+								hasComment = true;
+							}else{
+								noComment = noComment + string.charAt(i);
+								containComment = containComment + string.charAt(i);
+							}
+						}
+					}
+					if(noComment.replaceAll("\\s+", "").length() > 0){
+						code.put(N, true);
+					}
+					Pattern pattern1 = Pattern.compile("[\\d\\D]*[^/\\s] /[^\\s][\\d\\D]*");
+					Pattern pattern2 = Pattern.compile("[\\d\\D]*/ [^/\\s][\\d\\D]*");
+					if(pattern1.matcher(containComment.replaceAll("\\s+", " ")).matches()){
+						P ++;
+					}
+					if(pattern2.matcher(containComment.replaceAll("\\s+", " ")).matches()){
+						P ++;
+					}
+				}
+				for(int key : commentHashMap.keySet()){
+					if(code.containsKey(key)){
+						M = M + commentHashMap.get(key);
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		result[0] = M;
+		result[1] = P;
 		return result;
 	}
 }
