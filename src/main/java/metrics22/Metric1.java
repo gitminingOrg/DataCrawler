@@ -212,14 +212,23 @@ public class Metric1 {
 			// remove blank
 			// line = line.trim();
 			if (line.length() > 1) {
-				String sub = line.substring(0, 1);
-				if (sub.equals("\t")) {
+
+				int tempindex = 0;
+				char[] templine=line.toCharArray();
+				while (templine[tempindex]=='\t'
+						|| templine[tempindex]=='\40') {
+					tempindex++;
+				}
+				line=line.substring(0, tempindex);
+				if (line.contains("\t")) {
 					tabCount++;
-				} else {
+				}
+				if (line.contains("\40")) {
 					emptyCount++;
 				}
 			}
 		}
+		System.out.println(tabCount + "," + emptyCount);
 		// if (tabCount + emptyCount == 0) {
 		// result[0] = -1;
 		// result[1] = -1;
