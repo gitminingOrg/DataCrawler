@@ -34,7 +34,7 @@ public class Metric1 {
 
 		for (String file : fileNames) {
 			content = getContent(file);
-			String mycontent = "";
+			String mycontent = content;
 			if (!type.equals("java")) {
 				mycontent = new FileStringReader().removeUselessStmt(content);
 			}
@@ -211,7 +211,7 @@ public class Metric1 {
 		for (String line : lines) {
 			// remove blank
 			// line = line.trim();
-			if (line.length() > 1) {
+			if (line.trim().length() > 1) {
 
 				int tempindex = 0;
 				char[] templine=line.toCharArray();
@@ -228,7 +228,6 @@ public class Metric1 {
 				}
 			}
 		}
-		System.out.println(tabCount + "," + emptyCount);
 		// if (tabCount + emptyCount == 0) {
 		// result[0] = -1;
 		// result[1] = -1;
