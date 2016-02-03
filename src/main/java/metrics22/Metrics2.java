@@ -33,21 +33,21 @@ public class Metrics2 {
 				for (String file : fileNames) {
 					content = getContent(file);
 					visitor = ASTsearch(content);
-					int[] no8 = no8singleLen(content);
-					no81 += no8[0];
-					no82 += no8[1];
-
-					int[] no9 = no9spaceNum(content);
-					no91 += no9[0];
-					no92 += no9[1];
-
-					int[] no11 = no11assignSpaceUse(visitor);
-					no111 += no11[0];
-					no112 += no11[1];
-
-					int[] no12 = no12operatorPerStmt(content);
-					no121 += no12[0];
-					no122 += no12[1];
+//					int[] no8 = no8singleLen(content);
+//					no81 += no8[0];
+//					no82 += no8[1];
+//
+//					int[] no9 = no9spaceNum(content);
+//					no91 += no9[0];
+//					no92 += no9[1];
+//
+//					int[] no11 = no11assignSpaceUse(visitor);
+//					no111 += no11[0];
+//					no112 += no11[1];
+//
+//					int[] no12 = no12operatorPerStmt(content);
+//					no121 += no12[0];
+//					no122 += no12[1];
 
 					int[] no13 = no13varsPerLine(visitor);
 					no131 += no13[0];
@@ -66,25 +66,25 @@ public class Metrics2 {
 					String astContent = new FileStringReader()
 							.removeUselessStmt(content);
 					visitor = ASTsearch(astContent);
-					int[] no8 = no8singleLen(content);
-					no81 += no8[0];
-					no82 += no8[1];
-
-					int[] no9 = no9spaceNum(content);
-					no91 += no9[0];
-					no92 += no9[1];
-
-					int[] no11 = no11assignSpaceUse(visitor);
-					no111 += no11[0];
-					no112 += no11[1];
-
-					int[] no12 = no12operatorPerStmt(content);
-					no121 += no12[0];
-					no122 += no12[1];
+//					int[] no8 = no8singleLen(content);
+//					no81 += no8[0];
+//					no82 += no8[1];
+//
+//					int[] no9 = no9spaceNum(content);
+//					no91 += no9[0];
+//					no92 += no9[1];
+//
+//					int[] no11 = no11assignSpaceUse(visitor);
+//					no111 += no11[0];
+//					no112 += no11[1];
+//
+//					int[] no12 = no12operatorPerStmt(content);
+//					no121 += no12[0];
+//					no122 += no12[1];
 
 					int[] no13 = no13varsPerLine(visitor);
 					no131 += no13[0];
-					no132 += no13[1];
+					no132 += (no13[1] - 1);
 
 					no14 = no14 == 1 ? 1 : no14singleCharVarUs(visitor);
 
@@ -96,33 +96,33 @@ public class Metrics2 {
 			}
 
 			String result = "";
-
-			if (no82 == 0) {
-				result += "#,";
-			} else {
-				result += (1.0 * no81 / no82) + ",";
-			}
-
-			if (no92 == 0) {
-				result += "#,";
-			} else {
-				result += (1.0 * no91 / no92) + ",";
-			}
-
-			result += "#,";
-
-			if (no112 == 0) {
-				result += "#,";
-			} else {
-				result += (1.0 * no111 / no112) + ",";
-			}
-
-			if (no122 == 0) {
-				result += "#,";
-			} else {
-				result += (1.0 * no121 / no122) + ",";
-			}
-
+//
+//			if (no82 == 0) {
+//				result += "#,";
+//			} else {
+//				result += (1.0 * no81 / no82) + ",";
+//			}
+//
+//			if (no92 == 0) {
+//				result += "#,";
+//			} else {
+//				result += (1.0 * no91 / no92) + ",";
+//			}
+//
+//			result += "#,";
+//
+//			if (no112 == 0) {
+//				result += "#,";
+//			} else {
+//				result += (1.0 * no111 / no112) + ",";
+//			}
+//
+//			if (no122 == 0) {
+//				result += "#,";
+//			} else {
+//				result += (1.0 * no121 / no122) + ",";
+//			}
+			result += "#,";result += "#,";result += "#,";result += "#,";result += "#,";
 			if (no132 == 0) {
 				result += "#,";
 			} else {
