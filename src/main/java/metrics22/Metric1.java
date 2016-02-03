@@ -36,7 +36,7 @@ public class Metric1 {
 			content = getContent(file);
 			String mycontent = content;
 			if (!type.equals("java")) {
-				mycontent = new FileStringReader().removeUselessStmt(content);
+				mycontent = new FileStringReader().removeUselessStmtMetric5(content);
 			}
 			visitor = ASTsearch(mycontent);
 //			int[] no1 = empltyLine(content, type);
