@@ -39,72 +39,72 @@ public class Metric1 {
 				mycontent = new FileStringReader().removeUselessStmt(content);
 			}
 			visitor = ASTsearch(mycontent);
-			int[] no1 = empltyLine(content, type);
-			no11 += no1[0];
-			no12 += no1[1];
-
-			int[] no2 = indentationRatio(content);
-			no21 += no2[0];
-			no22 += no2[1];
-
-			int[] no3 = bracketUse(visitor);
-			no31 += no3[0];
-			no32 += no3[1];
-
-			int[] no4 = braceUse(content);
-			no41 += no4[0];
-			no42 += no4[1];
+//			int[] no1 = empltyLine(content, type);
+//			no11 += no1[0];
+//			no12 += no1[1];
+//
+//			int[] no2 = indentationRatio(content);
+//			no21 += no2[0];
+//			no22 += no2[1];
+//
+//			int[] no3 = bracketUse(visitor);
+//			no31 += no3[0];
+//			no32 += no3[1];
+//
+//			int[] no4 = braceUse(content);
+//			no41 += no4[0];
+//			no42 += no4[1];
 
 			int[] no5 = singleUseBrace(visitor);
 			no51 += no5[0];
 			no52 += no5[1];
 
-			int[] no6 = complexCut(visitor);
-			no61 += no6[0];
-			no62 += no6[1];
-
-			int[] no7 = caseUse(content);
-			no71 += no7[0];
-			no72 += no7[1];
+//			int[] no6 = complexCut(visitor);
+//			no61 += no6[0];
+//			no62 += no6[1];
+//
+//			int[] no7 = caseUse(content);
+//			no71 += no7[0];
+//			no72 += no7[1];
 		}
 
 		StringBuffer result = new StringBuffer();
 
-		if (no12 == 0) {
-			result.append("#,");
-		} else {
-			double re = 1.0 * no11 / no12;
-			result.append(String.format("%.2f", re) + ",");
-		}
-
-		int notemp2 = no21 + no22;
-
-		if (notemp2 == 0) {
-			result.append("#:#,");
-		} else {
-			double re1 = 1.0 * no21 / notemp2;
-			double re2 = 1.0 * no22 / notemp2;
-			result.append(String.format("%.2f", re1) + ":"
-					+ String.format("%.2f", re2) + ",");
-		}
-
-		if (no32 == 0) {
-			result.append("#,");
-		} else {
-			double re3 = 1.0 * no31 / no32;
-			result.append(String.format("%.2f", re3) + ",");
-		}
-
-		int notemp4 = no41 + no42;
-
-		if (notemp4 == 0) {
-			result.append("#:#,");
-		} else {
-			double re4 = 1.0 * no41 / notemp4;
-			double re44 = 1.0 * no42 / notemp4;
-			result.append(String.format("%.2f", re4) + ":"
-					+ String.format("%.2f", re44) + ",");
-		}
+//		if (no12 == 0) {
+//			result.append("#,");
+//		} else {
+//			double re = 1.0 * no11 / no12;
+//			result.append(String.format("%.2f", re) + ",");
+//		}
+//
+//		int notemp2 = no21 + no22;
+//
+//		if (notemp2 == 0) {
+//			result.append("#:#,");
+//		} else {
+//			double re1 = 1.0 * no21 / notemp2;
+//			double re2 = 1.0 * no22 / notemp2;
+//			result.append(String.format("%.2f", re1) + ":"
+//					+ String.format("%.2f", re2) + ",");
+//		}
+//
+//		if (no32 == 0) {
+//			result.append("#,");
+//		} else {
+//			double re3 = 1.0 * no31 / no32;
+//			result.append(String.format("%.2f", re3) + ",");
+//		}
+//
+//		int notemp4 = no41 + no42;
+//
+//		if (notemp4 == 0) {
+//			result.append("#:#,");
+//		} else {
+//			double re4 = 1.0 * no41 / notemp4;
+//			double re44 = 1.0 * no42 / notemp4;
+//			result.append(String.format("%.2f", re4) + ":"
+//					+ String.format("%.2f", re44) + ",");
+//		}
 
 		int notemp5 = no51 + no52;
 
@@ -115,19 +115,19 @@ public class Metric1 {
 			result.append(String.format("%.2f", re5) + ",");
 		}
 
-		if (no62 == 0) {
-			result.append("#,");
-		} else {
-			double re6 = 1.0 * no61 / no62;
-			result.append(String.format("%.2f", re6) + ",");
-		}
-
-		if (no72 == 0) {
-			result.append("#,");
-		} else {
-			double re7 = 1.0 * no71 / no72;
-			result.append(String.format("%.2f", re7) + ",");
-		}
+//		if (no62 == 0) {
+//			result.append("#,");
+//		} else {
+//			double re6 = 1.0 * no61 / no62;
+//			result.append(String.format("%.2f", re6) + ",");
+//		}
+//
+//		if (no72 == 0) {
+//			result.append("#,");
+//		} else {
+//			double re7 = 1.0 * no71 / no72;
+//			result.append(String.format("%.2f", re7) + ",");
+//		}
 
 		return result.toString();
 
