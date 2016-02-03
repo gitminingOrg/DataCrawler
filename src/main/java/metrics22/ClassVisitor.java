@@ -2,6 +2,8 @@ package metrics22;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -251,6 +253,16 @@ public class ClassVisitor extends ASTVisitor {
 	public boolean visit(MethodRefParameter node) {
 		// TODO Auto-generated method stub
 		return super.visit(node);
+	}
+
+	@Override
+	public void endVisit(IfStatement node) {
+		Map<Object, Object> map = node.properties();
+		Set<Object> keys = map.keySet();
+		for (Object object : keys) {
+			System.out.println(object + "   " + map.get(object));
+		}
+		super.endVisit(node);
 	}
 
 }
