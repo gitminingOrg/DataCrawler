@@ -25,7 +25,7 @@ public class Metrcis3 {
 		
 		List<String> list = new ArrayList<String>();
 		list.add("StructureParser.java");
-		list.add("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\githubCrawler\\GitCrawler.java");
+		//list.add("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\githubCrawler\\GitCrawler.java");
 		Metrcis3 codeAnalysis = new Metrcis3();
 		//codeAnalysis.commentRatio(list);
 		//codeAnalysis.commentMethod(list);
@@ -67,7 +67,7 @@ public class Metrcis3 {
 		if((commentMethod[0] + commentMethod[1]) == 0){
 			result = result + "#,";
 		}else{
-			result = result + (commentMethod[0] / 1.0 / (commentMethod[0] + commentMethod[1])) + ":" + (commentMethod[1] / 1.0 / (commentMethod[0] + commentMethod[1])) + ",";
+			result = result + (commentMethod[0] / 1.0 / (commentMethod[0] + commentMethod[1])) + ",";
 		}
 		
 		if(blankB4cmt[0] == 0){
@@ -89,7 +89,7 @@ public class Metrcis3 {
 		}
 		
 		if(funcLen[0] == 0){
-			result = result + "#,";
+			result = result + "#";
 		}else{
 			result = result + (funcLen[1] / 1.0 / funcLen[0]);
 		}
