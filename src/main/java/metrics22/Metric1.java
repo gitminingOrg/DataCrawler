@@ -109,7 +109,7 @@ public class Metric1 {
 		int notemp5 = no51 + no52;
 
 		if (notemp5 == 0) {
-			result.append("#:#,");
+			result.append("#,");
 		} else {
 			double re5 = 1.0 * no51 / notemp5;
 			result.append(String.format("%.2f", re5) + ",");
