@@ -31,7 +31,7 @@ public class ContentCrawler {
 		String response = "";
 		int responseCode = 200;
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("ghcrawlerV3");
+		DB db = mongo.getDB("Experiment");
 		DBCollection contentcache = db.getCollection(GetHostName.getHostName() + "contentcache");
 		
 		try {

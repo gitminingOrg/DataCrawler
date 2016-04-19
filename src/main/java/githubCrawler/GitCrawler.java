@@ -36,7 +36,7 @@ import com.mongodb.util.JSON;
 public class GitCrawler {
 	private static Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 	//private static Mongo mongo = new Mongo("localhost", 27017);
-	private static DB db = mongo.getDB("ghcrawlerV3");
+	private static DB db = mongo.getDB("Experiment");
 	
 	private static DBCollection repository = db.getCollection("repository");
 	private static DBCollection forks = db.getCollection("forks");
@@ -136,7 +136,7 @@ public class GitCrawler {
 		issuecommentcache.drop();
 		issueeventcache.drop();
 		contentcache.drop();
-		//commitscache.drop();
+		commitscache.drop();
 		issuecache.drop();
 		pullcache.drop();
 		//followercache.drop();
@@ -168,22 +168,22 @@ public class GitCrawler {
 		//downloadRepository.downloadRepository(fullName);
 		repositoryArray = repositoryCrawler.crawlRepository(fullName);
 		forkCrawler.crawlForks(fullName);
-		assigneeCrawler.crawlAssignees(fullName);
+		//assigneeCrawler.crawlAssignees(fullName);
 		languagesArray = languageCrawler.crawlLanguages(fullName);
 		stargazerCrawler.crawlStargazers(fullName);
-		contributorCrawler.crawlContributors(fullName);
+		//contributorCrawler.crawlContributors(fullName);
 		subscriberCrawler.crawlSubscribers(fullName);
 		tagCrawler.crawlTags(fullName);
 		branchCrawler.crawlBranches(fullName);
 		gitrefCrawler.crawlGitrefs(fullName);
-		//commentCrawler.crawlComments(fullName);
-		issueCommentCrawler.crawlIssueComments(fullName);
-		issueEventCrawler.crawlIssueEvents(fullName);
+		commentCrawler.crawlComments(fullName);
+		//issueCommentCrawler.crawlIssueComments(fullName);
+		//issueEventCrawler.crawlIssueEvents(fullName);
 		//eventsArray = eventCrawler.crawlEvents(fullName);
 		contentCrawler.crawlContents(fullName);
-		//commitCrawler.crawlCommitsByLog(fullName);;
+		commitCrawler.crawlCommits(fullName);;
 		issueCrawler.crawlIssues(fullName);
-		pullCrawler.crawlPulls(fullName);
+		//pullCrawler.crawlPulls(fullName);
 		treeArray = treeCrawler.crawlTree(fullName);
 		
 		try{
@@ -198,12 +198,12 @@ public class GitCrawler {
 			}
 			forkcursor.close();
 			
-			DBCursor assigneecursor = assigneecache.find();
+			/*DBCursor assigneecursor = assigneecache.find();
 			assigneecursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (assigneecursor.hasNext()) {
 				assignees.save(assigneecursor.next());
 			}
-			assigneecursor.close();
+			assigneecursor.close();*/
 			
 			if(languagesArray != null){
 				languages.save(languagesArray);
@@ -216,12 +216,12 @@ public class GitCrawler {
 			}
 			stargazercursor.close();
 			
-			DBCursor contributorcursor = contributorcache.find();
+			/*DBCursor contributorcursor = contributorcache.find();
 			contributorcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (contributorcursor.hasNext()) {
 				contributors.save(contributorcursor.next());
 			}
-			contributorcursor.close();
+			contributorcursor.close();*/
 			
 			DBCursor subscribercursor = subscribercache.find();
 			subscribercursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
@@ -255,7 +255,14 @@ public class GitCrawler {
 				comments.save(commentsArray.get(i));
 			}*/
 			
-			DBCursor issuecommentcursor = issuecommentcache.find();
+			DBCursor commentcursor = commentcache.find();
+			commentcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while (commentcursor.hasNext()) {
+				comments.save(commentcursor.next());
+			}
+			commentcursor.close();
+			
+			/*DBCursor issuecommentcursor = issuecommentcache.find();
 			issuecommentcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (issuecommentcursor.hasNext()) {
 				issue_comment.save(issuecommentcursor.next());
@@ -267,7 +274,7 @@ public class GitCrawler {
 			while (issueeventcursor.hasNext()) {
 				issue_events.save(issueeventcursor.next());
 			}
-			issueeventcursor.close();
+			issueeventcursor.close();*/
 			
 			/*for (int i = 0; i < eventsArray.size(); i++) {
 				events.save(eventsArray.get(i));
@@ -287,18 +294,18 @@ public class GitCrawler {
 			}
 			issuecursor.close();
 			
-			DBCursor pullcursor = pullcache.find();
+			/*DBCursor pullcursor = pullcache.find();
 			pullcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
 			while (pullcursor.hasNext()) {
 				pulls.save(pullcursor.next());
 			}
-			pullcursor.close();
+			pullcursor.close();*/
 			
 			if(treeArray != null){
 				tree.save(treeArray);
 			}
 			
-			/*DBObject commitNum = new BasicDBObject();
+			DBObject commitNum = new BasicDBObject();
 			commitNum.put("commitnumber", commitCrawler.commitNumber);
 			commitNum.put("fn", fullName);
 			commitnumber.save(commitNum);
@@ -309,7 +316,7 @@ public class GitCrawler {
 			while (cursor.hasNext()) {
 				commits.save(cursor.next());
 			}
-			cursor.close();*/
+			cursor.close();
 			
 			DBCursor userCursor = usercache.find();
 			userCursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);

@@ -14,7 +14,7 @@ import com.mongodb.client.MongoDatabase;
 public class UserDeal {
 	public static void fetchUser(String login, int id) {
 		MongoClient mongoClient = new MongoClient(MongoInfo.getMongoServerIp(), 27017);
-		MongoDatabase db = mongoClient.getDatabase("ghcrawlerV3");
+		MongoDatabase db = mongoClient.getDatabase("Experiment");
 		/*FindIterable<Document> exist = db.getCollection("usercache").find(new Document("id",id));
 		FindIterable<Document> exist1 = db.getCollection("user").find(new Document("id",id));
 		if (exist.first() != null) {

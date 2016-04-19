@@ -64,6 +64,16 @@ public class Committt {
 		}
 	}
 
+	public static void handleTaskA(String message){
+		System.out.println(message);
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void handleTask(String message) {
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
 		DB db = mongo.getDB("ghcrawlerV3");
@@ -75,16 +85,16 @@ public class Committt {
 		DBObject object = new BasicDBObject();
 		object.put("fn", message);
 		
-		/*if(Integer.parseInt(repos.find(object).next().get("commitNumber").toString()) <= 1000){
-			if(commit.find(object).limit(1).size() == 0 && commitNum.find(object).limit(1).size() == 0){
+		if(Integer.parseInt(repos.find(object).next().get("commitNumber").toString()) <= 10000){
+			//if(commit.find(object).limit(1).size() == 0 && commitNum.find(object).limit(1).size() == 0){
 				gitCommit.crawl(message);
-			}else{
+			/*}else{
 				commit.remove(object);
 				commitNum.remove(object);
 				gitCommit.crawl(message);
-			}
-		}*/
-		gitCommit.crawl(message);
+			}*/
+		}
+		//gitCommit.crawl(message);
 		
 		/*GitCommit gitCommit = new GitCommit();
 		gitCommit.crawl("mojombo/grit");*/

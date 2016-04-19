@@ -1,12 +1,10 @@
-package githubCrawler;
+package hehe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 
-import utility.GetAuthorization;
 import utility.GetHostName;
 import utility.GetURLConnection;
 import utility.MongoInfo;
@@ -21,8 +19,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
-public class PullCrawler {
-
+public class PullCrawlerA {
 	public void crawlPulls(String fullName){
 		System.out.println("Start crawl pulls------------------------");
 		int index = 1;
@@ -32,8 +29,8 @@ public class PullCrawler {
 		String response = "";
 		int responseCode = 200;
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("Experiment");
-		DBCollection pullcache = db.getCollection(GetHostName.getHostName() + "pullcache");
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection pullcache = db.getCollection("pullcacheA");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();

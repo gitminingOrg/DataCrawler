@@ -33,7 +33,7 @@ public class ContributorCrawler {
 		String response = "";
 		int responseCode = 200;
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("ghcrawlerV3");
+		DB db = mongo.getDB("Experiment");
 		DBCollection contributorcache = db.getCollection(GetHostName.getHostName() + "contributorcache");
 		
 		try {

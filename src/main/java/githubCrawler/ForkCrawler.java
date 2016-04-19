@@ -32,7 +32,7 @@ public class ForkCrawler {
 		String response = "";
 		int responseCode = 200;
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("ghcrawlerV3");
+		DB db = mongo.getDB("Experiment");
 		DBCollection forkcache = db.getCollection(GetHostName.getHostName() + "forkcache");
 		
 		try {

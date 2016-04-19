@@ -159,7 +159,7 @@ public class GitCommit {
 		IssueEventCrawler issueEventCrawler = new IssueEventCrawler();
 		//EventCrawler eventCrawler = new EventCrawler();
 		ContentCrawler contentCrawler = new ContentCrawler();*/
-		CommitCrawler commitCrawler = new CommitCrawler();
+		CommitCrawlerA commitCrawler = new CommitCrawlerA();
 		/*IssueCrawler issueCrawler = new IssueCrawler();
 		PullCrawler pullCrawler = new PullCrawler();
 		TreeCrawler treeCrawler = new TreeCrawler();

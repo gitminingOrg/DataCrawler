@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.mongodb.BasicDBObject;
@@ -22,6 +24,7 @@ import com.mongodb.Mongo;
 import com.mongodb.WriteConcern;
 
 import utility.GetAuthorization;
+import utility.GetHostName;
 import utility.GetURLConnection;
 import utility.MessageSender;
 import utility.MongoInfo;
@@ -221,7 +224,7 @@ public class TTTTTTTTTTTest {
 		object3.put("files", files);
 		abc.save(object3);*/
 		
-		HttpURLConnection urlConnection = GetURLConnection.getUrlConnection("https://github.com/checkstyle/checkstyle");
+		/*HttpURLConnection urlConnection = GetURLConnection.getUrlConnection("https://github.com/checkstyle/checkstyle");
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
 			String response = "";
@@ -236,7 +239,82 @@ public class TTTTTTTTTTTest {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}*/
+		
+		/*Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("NewProject");
+		DBCollection pulls = db.getCollection("pulls");
+		DBCursor cursor = pulls.find();
+		cursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+		CommitCrawler crawler = new CommitCrawler();
+		
+		while(cursor.hasNext()){
+			crawler.crawlCommits(cursor.next().get("commits_url").toString());
+		}*/
+		
+		/*String string = "asasdasda,asABsd sda. as'das sdas sdass as as+as ";
+		System.out.println(string.replaceAll("[^a-zA-Z'0-9]", "*"));
+		
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection repo = db.getCollection("repository");
+		DBCursor repos = repo.find();
+		repos.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		
+		while(repos.hasNext()){
+			DBObject object = repos.next();
+			if(object.get("description") != null){
+				//System.out.println(object.get("description").toString().replaceAll("[^a-zA-Z'0-9]", " ").replaceAll("\\s+", " "));
+				String description = object.get("description").toString().replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+				for(int i = 0 ; i < description.split(" ").length ; i ++){
+					String word = description.split(" ")[i].toLowerCase();
+					if(map.containsKey(word)){
+						map.put(word, map.get(word) + 1);
+					}else{
+						map.put(word, 1);
+					}
+				}
+			}
 		}
+		
+		for(String key : map.keySet()){
+			System.out.println(key + ":" + map.get(key));
+		}*/
+		/*String[] repo = {"zfsonlinux/zfs","zfsonlinux/spl","rdp/google_hash","fiorix/txredisapi","mojombo/semver.org","bixo/bixo","gmallard/stompserver_ng","pytroll/mpop","plataformatec/show_for","cowboyd/redjs","lifo/cramp","hugoduncan/criterium","stolowski/QComicBook","django-pci/django-axes","milesj/uploader","bashu/django-watermark","mleibman/SlickGrid","fluffle/goirc","fastestforward/heroku_san","NESCent/plhdb","evilstreak/markdown-js","hexorx/countries","ligi/gobandroid","jhy/jsoup","djberg96/win32-process","movitto/rjr","jkuhnert/ognl","dkogan/feedgnuplot","gfx/mousex-getopt","pycassa/pycassa","JeremySkinner/FluentValidation","dmacvicar/ruby-sfcc","patzy/glop","igrigorik/em-websocket","pelle/clauth","resque/resque-scheduler","silveira/openpixels","pinax/pinax-blog","felix-lang/fbuild","ruby-rdf/rdf","memowe/contenticious","mopidy/mopidy","rspec/rspec-rails"};
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection pullcache = db.getCollection(GetHostName.getHostName() + "pullcache");
+		DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
+		DBCollection pulls = db.getCollection("pullscp");
+		DBCollection issues = db.getCollection("issuescp");
+		
+		for(int i = 0 ; i < repo.length ; i ++){
+			pullcache.drop();
+			issuecache.drop();
+			
+			PullCrawler pullCrawler = new PullCrawler();
+			IssueCrawler issueCrawler = new IssueCrawler();
+			issueCrawler.crawlIssues(repo[i]);
+			pullCrawler.crawlPulls(repo[i]);
+			
+			DBCursor issuecursor = issuecache.find();
+			issuecursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while (issuecursor.hasNext()) {
+				issues.save(issuecursor.next());
+			}
+			issuecursor.close();
+			
+			DBCursor pullcursor = pullcache.find();
+			pullcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+			while (pullcursor.hasNext()) {
+				pulls.save(pullcursor.next());
+			}
+			pullcursor.close();
+		}*/
+		
+		IssueCrawler issueCrawler = new IssueCrawler();
+		issueCrawler.crawlIssues("wordpress-mobile/WordPress-Android");
 	}
 
 }

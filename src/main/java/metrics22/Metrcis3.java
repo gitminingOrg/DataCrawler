@@ -17,14 +17,14 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class Metrcis3 {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String string = "b";
+		//String string = "b";
 		//System.out.println(string.contains("\"[\\d\\D]*;//[\\d\\D]*\""));
-		Pattern pattern = Pattern.compile("[^abc]");
-		Matcher matcher = pattern.matcher(string);
+		//Pattern pattern = Pattern.compile("[^abc]");
+		//Matcher matcher = pattern.matcher(string);
 		//System.out.println(matcher.matches());
 		
 		List<String> list = new ArrayList<String>();
-		list.add("StructureParser.java");
+		list.add("C:\\Users\\Administrator\\Desktop\\DB\\hazelcast_559");
 		//list.add("I:\\EEEEEEEEEEclipse\\DataCrawler\\src\\main\\java\\githubCrawler\\GitCrawler.java");
 		Metrcis3 codeAnalysis = new Metrcis3();
 		//codeAnalysis.commentRatio(list);

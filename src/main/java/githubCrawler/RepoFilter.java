@@ -300,7 +300,7 @@ public class RepoFilter {
 				while ((response = reader.readLine()) != null) {
 					result = result + response;
 				}
-				System.out.println(result);
+				//System.out.println(result);
 				if (result.contains("<svg aria-hidden=\"true\" class=\"octicon octicon-check\" height=\"16\" role=\"img\" version=\"1.1\" viewBox=\"0 0 12 16\" width=\"12\"><path d=\"M12 5L4 13 0 9l1.5-1.5 2.5 2.5 6.5-6.5 1.5 1.5z\"></path></svg>")) {
 					String str = result
 							.split("<svg aria-hidden=\"true\" class=\"octicon octicon-check\" height=\"16\" role=\"img\" version=\"1.1\" viewBox=\"0 0 12 16\" width=\"12\"><path d=\"M12 5L4 13 0 9l1.5-1.5 2.5 2.5 6.5-6.5 1.5 1.5z\"></path></svg>")[1]

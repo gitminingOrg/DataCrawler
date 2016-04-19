@@ -122,7 +122,6 @@ public class Metrics2 {
 //			} else {
 //				result += (1.0 * no121 / no122) + ",";
 //			}
-			result += "#,";result += "#,";result += "#,";result += "#,";result += "#,";
 			if (no132 == 0) {
 				result += "#,";
 			} else {
@@ -137,7 +136,7 @@ public class Metrics2 {
 			return result;
 		} catch (Exception e) {
 			// TODO: handle exception
-			return "文件有问题";
+			return "鏂囦欢鏈夐棶棰�";
 		}
 
 	}

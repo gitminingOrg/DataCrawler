@@ -61,7 +61,7 @@ public class RepoFilter1 {
 
 	public void filter() {
 		System.out.println("Start filter repositories-----------------------");
-		while (id < 13000000) {
+		while (id < 29000000) {
 			try {
 				urlConnection = GetURLConnection.getUrlConnection(repoURL + id);
 				reader = new BufferedReader(new InputStreamReader(

@@ -32,12 +32,15 @@ public class IssueCrawler {
 		String response = "";
 		int responseCode = 200;
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("ghcrawlerV3");
-		DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
+		//DB db = mongo.getDB("ghcrawlerV3");
+		//DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
+		DB db = mongo.getDB("WordPressAndroid");
+		DBCollection issuecache = db.getCollection("issue");
 		
 		try {
 			responseCode = urlConnection.getResponseCode();
 		} catch (Exception e) {
+			System.exit(0);
 			// TODO: handle exception
 			while(ValidateInternetConnection.validateInternetConnection() == 0){
 				System.out.println("Wait for connecting the internet---------------");
@@ -64,6 +67,7 @@ public class IssueCrawler {
 				reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
 				response = reader.readLine();
 			} catch (Exception e) {
+				System.exit(0);
 				// TODO: handle exception
 				while(ValidateInternetConnection.validateInternetConnection() == 0){
 					System.out.println("Wait for connecting the internet---------------");
@@ -97,6 +101,7 @@ public class IssueCrawler {
 							reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
 							response = reader.readLine();
 						} catch (Exception e) {
+							System.exit(0);
 							// TODO: handle exception
 							while(ValidateInternetConnection.validateInternetConnection() == 0){
 								System.out.println("Wait for connecting the internet---------------");
@@ -122,12 +127,14 @@ public class IssueCrawler {
 							object.put("fn", fullName);
 							issuecache.save(object);
 						} catch (Exception e) {
+							System.exit(0);
 							// TODO: handle exception
 							System.out.println("can not translate it to json----------------------------");
 						}
 						
 					}
 				}catch(Exception e){
+					System.exit(0);
 					System.out.println("can not translate it to json----------------------------");
 				}
 				
@@ -139,6 +146,7 @@ public class IssueCrawler {
 					reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"utf-8"));
 					response = reader.readLine();
 				} catch (Exception e) {
+					System.exit(0);
 					// TODO: handle exception
 					while(ValidateInternetConnection.validateInternetConnection() == 0){
 						System.out.println("Wait for connecting the internet---------------");

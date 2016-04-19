@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-import utility.GetAuthorization;
 import utility.GetHostName;
 import utility.GetURLConnection;
 import utility.MongoInfo;
@@ -23,9 +22,9 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
-public class CommitCrawler {
+public class CommitCrawlerA {
 	private Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-	private DB db = mongo.getDB("Experiment");
+	private DB db = mongo.getDB("ghcrawlerV3");
 	private DBCollection commitscache = db.getCollection(GetHostName.getHostName() + "commitscache");
 	//private DBCollection commitscache = db.getCollection("pullcommits");
 	public static int commitNumber = 0;
@@ -132,7 +131,7 @@ public class CommitCrawler {
 							object.put("fn", fullName);
 							//object.put("pn", pn);
 							commitsArray.add(object);
-							commitNumber ++;
+							commitNumberByAPI ++;
 						} catch (Exception e) {
 							// TODO: handle exception
 							System.out.println("can not translate it to json----------------------------");

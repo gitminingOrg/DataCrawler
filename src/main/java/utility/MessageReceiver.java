@@ -2,6 +2,8 @@ package utility;
 
 import githubCrawler.GitCrawler;
 import githubCrawler.GitrefCrawler;
+import githubCrawler.IssueCrawler;
+import githubCrawler.PullCrawler;
 import githubCrawler.RepoCrawler;
 
 import java.io.FileWriter;
@@ -11,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -22,7 +25,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
 public class MessageReceiver {
-	private static final String TASK_QUEUE_NAME = "filter_repo_queue#1";
+	private static final String TASK_QUEUE_NAME = "fixpullandissue";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -50,7 +53,7 @@ public class MessageReceiver {
 					String message = new String(body, "UTF-8");
 					System.out.println(" [x] Received '" + message + "'");
 					try {
-						handleTask(message);
+						handleTaskA(message);
 					} finally {
 						System.out.println(" [x] Done");
 						channel.basicAck(envelope.getDeliveryTag(), false);
@@ -76,16 +79,36 @@ public class MessageReceiver {
 		}
 	}
 	
-	/*public static void handleTaskA(String message) {
-		System.out.println("start");
-		try {
-			Thread.sleep(30000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public static void handleTaskA(String message) {
+		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
+		DB db = mongo.getDB("ghcrawlerV3");
+		DBCollection pullcache = db.getCollection(GetHostName.getHostName() + "pullcache");
+		DBCollection issuecache = db.getCollection(GetHostName.getHostName() + "issuecache");
+		DBCollection pulls = db.getCollection("pullscp");
+		DBCollection issues = db.getCollection("issuescp");
+		
+		pullcache.drop();
+		issuecache.drop();
+		
+		PullCrawler pullCrawler = new PullCrawler();
+		IssueCrawler issueCrawler = new IssueCrawler();
+		issueCrawler.crawlIssues(message);
+		pullCrawler.crawlPulls(message);
+		
+		DBCursor issuecursor = issuecache.find();
+		issuecursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+		while (issuecursor.hasNext()) {
+			issues.save(issuecursor.next());
 		}
-		System.out.println(message);
-	}*/
+		issuecursor.close();
+		
+		DBCursor pullcursor = pullcache.find();
+		pullcursor.addOption(com.mongodb.Bytes.QUERYOPTION_NOTIMEOUT);
+		while (pullcursor.hasNext()) {
+			pulls.save(pullcursor.next());
+		}
+		pullcursor.close();
+	}
 		
 	
 	public static void handleTask(String message) {
@@ -93,7 +116,7 @@ public class MessageReceiver {
 		GitCrawler gitCrawler = new GitCrawler();
 		
 		Mongo mongo = new Mongo(MongoInfo.getMongoServerIp(), 27017);
-		DB db = mongo.getDB("ghcrawlerV3");
+		DB db = mongo.getDB("Experiment");
 		//DBCollection repolist = db.getCollection("repolist");
 		DBCollection repository = db.getCollection("repository");
 		DBCollection complete = db.getCollection("complete");
